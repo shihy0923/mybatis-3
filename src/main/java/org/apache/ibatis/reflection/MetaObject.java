@@ -15,10 +15,6 @@
  */
 package org.apache.ibatis.reflection;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.ibatis.reflection.factory.ObjectFactory;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
 import org.apache.ibatis.reflection.wrapper.BeanWrapper;
@@ -27,8 +23,13 @@ import org.apache.ibatis.reflection.wrapper.MapWrapper;
 import org.apache.ibatis.reflection.wrapper.ObjectWrapper;
 import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 /**
  * @author Clinton Begin
+ * MetaObject是MyBatis中的反射工具类，该工具类在MyBatis源码中出现的频率非常高。使用MetaObject工具类，我们可以很优雅地获取和设置对象的属性值。
  */
 public class MetaObject {
 

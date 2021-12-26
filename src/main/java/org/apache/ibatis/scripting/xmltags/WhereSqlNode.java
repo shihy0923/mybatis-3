@@ -15,13 +15,14 @@
  */
 package org.apache.ibatis.scripting.xmltags;
 
+import org.apache.ibatis.session.Configuration;
+
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.ibatis.session.Configuration;
-
 /**
  * @author Clinton Begin
+ * 用于描述动态SQL中的<where>标签，动态SQL解析时，会把<where>标签内容转换为WhereSqlNode对象。
  */
 public class WhereSqlNode extends TrimSqlNode {
 

@@ -15,14 +15,18 @@
  */
 package org.apache.ibatis.scripting.xmltags;
 
+
 import java.util.Map;
 import java.util.Optional;
 
 import org.apache.ibatis.parsing.GenericTokenParser;
 import org.apache.ibatis.session.Configuration;
 
+import java.util.Map;
+
 /**
  * @author Clinton Begin
+ *  用于描述动态SQL配置中的<foreach>标签，<foreach>标签配置信息在Mapper解析时会转换为ForEachSqlNode对象。
  */
 public class ForEachSqlNode implements SqlNode {
   public static final String ITEM_PREFIX = "__frch_";

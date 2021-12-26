@@ -15,20 +15,22 @@
  */
 package org.apache.ibatis.binding;
 
+import org.apache.ibatis.binding.MapperProxy.MapperMethodInvoker;
+import org.apache.ibatis.session.SqlSession;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.ibatis.binding.MapperProxy.MapperMethodInvoker;
-import org.apache.ibatis.session.SqlSession;
-
 /**
  * @author Lasse Voss
+ * 主要负责创建代理对象
  */
 public class MapperProxyFactory<T> {
-
+  //Mapper接口的对应的class对象
   private final Class<T> mapperInterface;
+  //缓存，key是mapperInterface接口中的某个方法对应的Method对象，value是对应的MapperMethodInvoker对象
   private final Map<Method, MapperMethodInvoker> methodCache = new ConcurrentHashMap<>();
 
   public MapperProxyFactory(Class<T> mapperInterface) {
@@ -45,10 +47,13 @@ public class MapperProxyFactory<T> {
 
   @SuppressWarnings("unchecked")
   protected T newInstance(MapperProxy<T> mapperProxy) {
+    //真正创建实现了mapperInterface接口的代理对象
     return (T) Proxy.newProxyInstance(mapperInterface.getClassLoader(), new Class[] { mapperInterface }, mapperProxy);
   }
 
+  //创建实现了mapperInterface接口的代理对象
   public T newInstance(SqlSession sqlSession) {
+    //创建MapperProxy对象，每次调用都会创建新的MapperProxy
     final MapperProxy<T> mapperProxy = new MapperProxy<>(sqlSession, mapperInterface, methodCache);
     return newInstance(mapperProxy);
   }

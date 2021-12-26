@@ -15,15 +15,17 @@
  */
 package org.apache.ibatis.scripting.xmltags;
 
-import java.util.regex.Pattern;
-
 import org.apache.ibatis.parsing.GenericTokenParser;
 import org.apache.ibatis.parsing.TokenHandler;
 import org.apache.ibatis.scripting.ScriptingException;
 import org.apache.ibatis.type.SimpleTypeRegistry;
 
+import java.util.regex.Pattern;
+
 /**
  * @author Clinton Begin
+ *  该类与StaticTextSqlNode类不同的是，当静态文本中包含${}占位符时，说明${}需要在Mapper调用时将${}替换为具体的参数值。因此，
+ *  使用TextSqlNode类来描述。
  */
 public class TextSqlNode implements SqlNode {
   private final String text;

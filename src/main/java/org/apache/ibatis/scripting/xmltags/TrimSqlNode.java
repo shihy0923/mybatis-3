@@ -15,6 +15,8 @@
  */
 package org.apache.ibatis.scripting.xmltags;
 
+import org.apache.ibatis.session.Configuration;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -22,10 +24,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.apache.ibatis.session.Configuration;
-
 /**
  * @author Clinton Begin
+ * 用于描述动态SQL中的<trim>标签，动态SQL解析时，会把<trim>标签内容转
+ * 换为TrimSqlNode对象。我们了解到<where>标签和<set>标签实际上是<trim>标签的一种特例，<where>标签和<set>标签实现的内容都可以使用<trim>标签来完成，因此WhereSqlNode和SetSqlNodel类设计为TrimSqlNode类的子类，属于特殊的TrimSqlNode。
  */
 public class TrimSqlNode implements SqlNode {
 

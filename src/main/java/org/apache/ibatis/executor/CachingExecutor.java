@@ -15,9 +15,6 @@
  */
 package org.apache.ibatis.executor;
 
-import java.sql.SQLException;
-import java.util.List;
-
 import org.apache.ibatis.cache.Cache;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.cache.TransactionalCacheManager;
@@ -32,9 +29,13 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.transaction.Transaction;
 
+import java.sql.SQLException;
+import java.util.List;
+
 /**
  * @author Clinton Begin
  * @author Eduardo Macarron
+ * 扮演着装饰器模式，为Executor添加了二级缓存功能
  */
 public class CachingExecutor implements Executor {
 

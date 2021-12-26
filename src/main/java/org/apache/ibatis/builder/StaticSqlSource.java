@@ -15,19 +15,24 @@
  */
 package org.apache.ibatis.builder;
 
-import java.util.List;
-
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.ParameterMapping;
 import org.apache.ibatis.mapping.SqlSource;
 import org.apache.ibatis.session.Configuration;
 
+import java.util.List;
+
 /**
  * @author Clinton Begin
+ * 用于描述ProviderSqlSource、DynamicSqlSource及RawSqlSource解析后得到的静态SQL资源。
+ * 无论是Java注解还是XML文件配置的SQL信息，在Mapper调用时都会根据用户传入的参数将Mapper配置转换为StaticSqlSource类。
+ *
  */
 public class StaticSqlSource implements SqlSource {
-
+  //Mapper.xml解析后的sql内容，如：insert into tbl_department (id, name, tel) values (?, ?, ?)或者select * from tbl_department
+  //所以《Mybatis技术内幕》说：StaticSqlSource中记录的SQL语句中可能含有“？”占位符，但是可以直接提交给数据库执行；
   private final String sql;
+  //参数信息
   private final List<ParameterMapping> parameterMappings;
   private final Configuration configuration;
 

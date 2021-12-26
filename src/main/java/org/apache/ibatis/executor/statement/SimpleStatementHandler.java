@@ -15,12 +15,6 @@
  */
 package org.apache.ibatis.executor.statement;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.List;
-
 import org.apache.ibatis.cursor.Cursor;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.executor.keygen.Jdbc3KeyGenerator;
@@ -32,8 +26,15 @@ import org.apache.ibatis.mapping.ResultSetType;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.List;
+
 /**
  * @author Clinton Begin
+ * 它底层使用java.sql.Statement对象来完成数据库的相关操作，所以SQL语句中不能存在占位符，相应的，SimpleStatementHandler.parameterize()方法是空实现。
  */
 public class SimpleStatementHandler extends BaseStatementHandler {
 

@@ -17,6 +17,7 @@ package org.apache.ibatis.scripting.xmltags;
 
 /**
  * @author Frank D. Martinez [mnesarco]
+ *  用于描述动态SQL中的<bind>标签，动态SQL解析时，会把<bind>标签配置信息转换为VarDeclSqlNode对象。
  */
 public class VarDeclSqlNode implements SqlNode {
 
