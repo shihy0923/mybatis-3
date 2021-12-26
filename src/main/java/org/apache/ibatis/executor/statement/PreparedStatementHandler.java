@@ -15,13 +15,6 @@
  */
 package org.apache.ibatis.executor.statement;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.List;
-
 import org.apache.ibatis.cursor.Cursor;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.executor.keygen.Jdbc3KeyGenerator;
@@ -32,8 +25,17 @@ import org.apache.ibatis.mapping.ResultSetType;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.List;
+
 /**
  * @author Clinton Begin
+ * PreparedStatementHandler底层依赖于java.sql.PreparedStatement对象来完成数据库的相关操作。在SimpleStatementHandler.parameterize()方法中，会调用前面介绍的ParameterHandler.setParameters()方法
+ * 完成SQL语句的参数绑定，代码比较简单，不再贴出来了。 PreparedStatementHandler.instantiateStatement()方法直接调用JDBC Connection的prepareStatement()方法创建PreparedStatement对象
  */
 public class PreparedStatementHandler extends BaseStatementHandler {
 

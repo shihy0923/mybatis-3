@@ -15,13 +15,14 @@
  */
 package org.apache.ibatis.scripting.xmltags;
 
+import org.apache.ibatis.session.Configuration;
+
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.ibatis.session.Configuration;
-
 /**
  * @author Clinton Begin
+ * 用于描述动态SQL配置中的<set>标签，Mapper解析时会把<set>标签配置信息转换为SetSqlNode对象
  */
 public class SetSqlNode extends TrimSqlNode {
 

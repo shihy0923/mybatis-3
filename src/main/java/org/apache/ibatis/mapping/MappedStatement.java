@@ -15,10 +15,6 @@
  */
 package org.apache.ibatis.mapping;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import org.apache.ibatis.cache.Cache;
 import org.apache.ibatis.executor.keygen.Jdbc3KeyGenerator;
 import org.apache.ibatis.executor.keygen.KeyGenerator;
@@ -28,33 +24,65 @@ import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.scripting.LanguageDriver;
 import org.apache.ibatis.session.Configuration;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * @author Clinton Begin
+ * 映射的语句，每个 <select />、<insert />、<update />、<delete /> 或者@Select，@Update等注解配饰的SQL信息，对应一个 MappedStatement 对象
+ * 另外，比较特殊的是，`<selectKey />` 解析后，也会对应一个 MappedStatement 对象
+ * https://github.com/YunaiV/mybatis-3/blob/master/src/main/java/org/apache/ibatis/mapping/MappedStatement.java
+ * 《Mybatis源码深度解析》
  */
 public final class MappedStatement {
 
+  //资源引用的地址，该sql所在的mapper文件，如mapper/department3.xml
   private String resource;
+  //Configuration 对象
   private Configuration configuration;
+  //在命名空间中唯一的标识符，可以被用来引用这条配置信息，规则：mapper.xml文件的namespace值+sql标签中我们自定义的的id值，如：com.linkedbear.mybatis.mapper.DepartmentMapper.findById
   private String id;
+  // 用于设置JDBC中 Statement对象的fetchSize属性，该属性用于指定SQL执行后返回的最大行数。
   private Integer fetchSize;
+  //驱动程序等待数据库返回请求结果的秒数，超时将会抛出异常
   private Integer timeout;
+  // 参数可选值为STATEMENT、PREPARED或CALLABLE，这会让MyBatis分别使用Statement、PreparedStatement或CallableStatement与数据库交互，默认值为PREPARED。
   private StatementType statementType;
+  // 参数可选值为FORWARD_ONLY、SCROLL_SENSITIVE或SCROLL_INSENSITIVE，用于设置ResultSet对象的特征，具体可参考第2章JDBC规范的相关内容。默认未设置，由JDBC驱动决定。
   private ResultSetType resultSetType;
+  //MyBatis中的SqlSource用于描述SQL资源，通过前面章节的介绍，我们知道MyBatis可以通过两种方式配置SQL信息，一种是通过@Selelect、@Insert、@Delete、@Update或者
+  //@SelectProvider、@InsertProvider、@DeleteProvider、@UpdateProvider等注解；另一种是通过XML配置文件。SqlSource就代表Java注解或者XML文件配置的SQL资源。把它类比成springn的BeanDefinition
   private SqlSource sqlSource;
+  //二级缓存的实例，根据Mapper中的<Cache>标签配置信息创建对应的Cache实现
   private Cache cache;
+  //该属性已经废弃
   private ParameterMap parameterMap;
+  //用于引用通过<resultMap>标签配置的实体属性与数据库字段之间建立的结果集的映射（注意：resultType最终也是会解析成resultMap）
   private List<ResultMap> resultMaps;
+  // 用于控制是否刷新缓存。如果将其设置为 true，则任何时候只要语句被调用，都会导致本地缓存和二级缓存被清空，默认值为false。
   private boolean flushCacheRequired;
+  // useCache： 是否使用二级缓存。如果将其设置为 true，则会导致本条语句的结果被缓存在MyBatis的二级缓存中，对应<select>标签，该属性的默认值为true。
   private boolean useCache;
+  //这个设置仅针对嵌套结果 select语句适用，如果为 true，就是假定嵌套结果包含在一起或分组在一起，这样的话，当返回一个主结果行的时候，就不会发生对前面结果集引用的情况。这就使得在获取嵌套结果集的时候不至于导致内存不够用，默认值为false。
   private boolean resultOrdered;
+  //SQL 语句类型
   private SqlCommandType sqlCommandType;
+  //主键生成策略，默认为Jdbc3KeyGenerator，即数据库自增主键。当配置了<selectKey>时，使用SelectKeyGenerator生成主键。
   private KeyGenerator keyGenerator;
+  //该属性仅对<update>和<insert>标签有用，用于将数据库自增主键或者<insert>标签中<selectKey>标签返回的值填充到实体的属性中，如果有多个属性，则使用逗号分隔。
   private String[] keyProperties;
+  //该属性仅对<update>和<insert>标签有用，通过生成的键值设置表中的列名，这个设置仅在某些数据库（例如PostgreSQL）中是必需的，当主键列不是表中的第一列时需要设置，如果有多个字段，则使用逗号分隔
   private String[] keyColumns;
+  //<select>标签中通过resultMap属性指定ResultMap是不是嵌套的ResultMap。
   private boolean hasNestedResultMaps;
+  //如果配置了 databaseIdProvider，MyBatis会加载所有不带databaseId或匹配当前 databaseId 的语句。
   private String databaseId;
+  //用于输出日志
   private Log statementLog;
+  // 该属性用于指定LanguageDriver实现，MyBatis中的LanguageDriver用于解析<select|update|insert|delete>标签中的SQL语句，生成SqlSource对象。
   private LanguageDriver lang;
+  //这个设置仅对多结果集的情况适用，它将列出语句执行后返回的结果集并每个结果集给一个名称，名称使用逗号分隔。
   private String[] resultSets;
 
   MappedStatement() {

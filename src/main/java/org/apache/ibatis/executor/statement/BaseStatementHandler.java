@@ -15,10 +15,6 @@
  */
 package org.apache.ibatis.executor.statement;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-
 import org.apache.ibatis.executor.ErrorContext;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.executor.ExecutorException;
@@ -33,21 +29,29 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 /**
  * @author Clinton Begin
+ * BaseStatementHandler是一个实现了StatementHandler接口的抽象类，它只提供了一些参数绑定相关的方法，并没有实现操作数据库的方法
  */
 public abstract class BaseStatementHandler implements StatementHandler {
 
   protected final Configuration configuration;
   protected final ObjectFactory objectFactory;
   protected final TypeHandlerRegistry typeHandlerRegistry;
+  //记录使用的ResultSetHandler对象，它的主要功能是将结果集映射成结果对象
   protected final ResultSetHandler resultSetHandler;
+  //记录使用的ParameterHandler对象，ParameterHandler对象的主要功能是为SQL语句绑定实参，也就是使用传入的实参替换掉SQL语句中的“?”占位符
   protected final ParameterHandler parameterHandler;
-
+  //记录执行SQL语句的Executor对象
   protected final Executor executor;
+  //记录该SQL语句对应的MappedStatement对象
   protected final MappedStatement mappedStatement;
   protected final RowBounds rowBounds;
-
+  //记录该SQL语句对应的BoundSql对象
   protected BoundSql boundSql;
 
   protected BaseStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
@@ -134,7 +138,7 @@ public abstract class BaseStatementHandler implements StatementHandler {
       //ignore
     }
   }
-
+  //初始化SQL语句的主键
   protected void generateKeys(Object parameter) {
     KeyGenerator keyGenerator = mappedStatement.getKeyGenerator();
     ErrorContext.instance().store();

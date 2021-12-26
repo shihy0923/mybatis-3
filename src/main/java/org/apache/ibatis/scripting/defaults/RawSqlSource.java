@@ -15,8 +15,6 @@
  */
 package org.apache.ibatis.scripting.defaults;
 
-import java.util.HashMap;
-
 import org.apache.ibatis.builder.SqlSourceBuilder;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.SqlSource;
@@ -25,17 +23,23 @@ import org.apache.ibatis.scripting.xmltags.DynamicSqlSource;
 import org.apache.ibatis.scripting.xmltags.SqlNode;
 import org.apache.ibatis.session.Configuration;
 
+import java.util.HashMap;
+
 /**
  * Static SqlSource. It is faster than {@link DynamicSqlSource} because mappings are
  * calculated during startup.
  *
  * @since 3.2.0
  * @author Eduardo Macarron
+ * RawSqlSource是SqlSource的另一个实现，其逻辑与DynamicSql
+ * Source类似，但是执行时机不一样，处理的SQL语句类型也不一样。XMLScriptBuilder.parseDynamicTags()方法时提到过，如果节点只包含“#{}”占位符，而不包含动态SQL节点或未解析的“${}”占位符的话，则不是动态SQL语句，会创建相应的StaticTextSqlNode对象。在XMLScriptBuilder.parseScriptNode()方法中会判断整个SQL节点是否为动态的，如果不是动态的SQL节点，则创建相应的RawSqlSource对象。
  */
 public class RawSqlSource implements SqlSource {
 
   private final SqlSource sqlSource;
 
+  //RawSqlSource在构造方法中首先会调用getSql()方法，其中通过调用SqlNode.apply()方法完成SQL语句的拼装和初步处理；之后会使用
+  //SqlSourceBuilder完成占位符的替换和ParameterMapping集合的创建，并返回StaticSqlSource对象。
   public RawSqlSource(Configuration configuration, SqlNode rootSqlNode, Class<?> parameterType) {
     this(configuration, getSql(configuration, rootSqlNode), parameterType);
   }

@@ -19,6 +19,7 @@ import java.util.List;
 
 /**
  * @author Clinton Begin
+ * 用于描述动态SQL配置中的<choose>标签内容，Mapper解析时会把<choose>标签配置内容转换为ChooseSqlNode对象。
  */
 public class ChooseSqlNode implements SqlNode {
   private final SqlNode defaultSqlNode;

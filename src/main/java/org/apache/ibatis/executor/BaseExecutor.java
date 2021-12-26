@@ -15,14 +15,6 @@
  */
 package org.apache.ibatis.executor;
 
-import static org.apache.ibatis.executor.ExecutionPlaceholder.EXECUTION_PLACEHOLDER;
-
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.cache.impl.PerpetualCache;
 import org.apache.ibatis.cursor.Cursor;
@@ -44,21 +36,35 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.transaction.Transaction;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+import static org.apache.ibatis.executor.ExecutionPlaceholder.*;
+
 /**
  * @author Clinton Begin
+ *BaseExecutor是一个实现了Executor接口的抽象类，它实现了Executor接口的大部分方法，其中就使用了模板方法模式。
+ * BaseExecutor中主要提供了缓存管理和事务管理的基本功能，继承BaseExecutor的子类只要实现四个基本方法来完成数据库的相关操作即可，
+ * 这四个方法分别是：doUpdate()方法、doQuery()方法、doQueryCursor()方法、doFlushStatement()方法，其余的功能在BaseExecutor中实现。
  */
 public abstract class BaseExecutor implements Executor {
 
   private static final Log log = LogFactory.getLog(BaseExecutor.class);
-
+  //Transaction对象，实现事务的提交、回滚和关闭操作
   protected Transaction transaction;
+  //其中封装的Executor对象
   protected Executor wrapper;
-
+  //延迟加载队列
   protected ConcurrentLinkedQueue<DeferredLoad> deferredLoads;
+  //一级缓存，用于缓存该Executor对象查询结果集映射得到的结果对象
   protected PerpetualCache localCache;
+  //一级缓存，用于缓存输出类型的参数
   protected PerpetualCache localOutputParameterCache;
   protected Configuration configuration;
-
+  //用来记录嵌套查询的层数
   protected int queryStack;
   private boolean closed;
 

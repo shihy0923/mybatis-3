@@ -21,7 +21,9 @@ import java.sql.SQLException;
 /**
  * A parameter handler sets the parameters of the {@code PreparedStatement}.
  *
- * @author Clinton Begin
+ * @author Clinton
+ * 在BoundSql中记录的SQL语句中可能包含“?”占位符，而每个“?”占位符都对应了BoundSql.parameterMappings集合中的一个元素
+ * ParameterHandler接口提供了唯一一个实现类，DefaultParameterHandler
  */
 public interface ParameterHandler {
 

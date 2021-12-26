@@ -15,6 +15,10 @@
  */
 package org.apache.ibatis.binding;
 
+import org.apache.ibatis.reflection.ExceptionUtil;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.util.MapUtil;
+
 import java.io.Serializable;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -26,13 +30,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import org.apache.ibatis.reflection.ExceptionUtil;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.util.MapUtil;
-
 /**
  * @author Clinton Begin
  * @author Eduardo Macarron
+ * 代理对象的具体逻辑
+ * JDK动态代理的InvocationHandler核心组件
  */
 public class MapperProxy<T> implements InvocationHandler, Serializable {
 
@@ -41,8 +43,13 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
       | MethodHandles.Lookup.PACKAGE | MethodHandles.Lookup.PUBLIC;
   private static final Constructor<Lookup> lookupConstructor;
   private static final Method privateLookupInMethod;
+  //记录了关联的SqlSession对象
   private final SqlSession sqlSession;
+  //Mapper接口对应的Class对象
   private final Class<T> mapperInterface;
+  //用于缓存MapperMethod对象，其中key是Mapper接口中方法对应的Method对象，value是对应的
+  // MapperMethodInvoker对象。MapperMethod对象会完成参数转换以及SQL语句的执行功能
+  // 需要注意的是，MapperMethod中并不记录任何状态相关的信息，所以可以在多个代理对象之间共享
   private final Map<Method, MapperMethodInvoker> methodCache;
 
   public MapperProxy(SqlSession sqlSession, Class<T> mapperInterface, Map<Method, MapperMethodInvoker> methodCache) {
@@ -80,9 +87,11 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     try {
+      //如果目标方法继承自Object，则直接调用目标方法
       if (Object.class.equals(method.getDeclaringClass())) {
         return method.invoke(this, args);
       } else {
+        //Mapper接口自己定义的方法，需要找对应的MapperMethodInvoker
         return cachedInvoker(method).invoke(proxy, method, args, sqlSession);
       }
     } catch (Throwable t) {
@@ -92,7 +101,9 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
 
   private MapperMethodInvoker cachedInvoker(Method method) throws Throwable {
     try {
+      //先取缓存，取到就返回（享元模式思想），没有就会创建然后放入methodCache缓存
       return MapUtil.computeIfAbsent(methodCache, method, m -> {
+        //兼容java8中的default方法
         if (m.isDefault()) {
           try {
             if (privateLookupInMethod == null) {
@@ -105,6 +116,7 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
             throw new RuntimeException(e);
           }
         } else {
+          //这里才是执行sqlsession的Invoker，PlainMethodInvoker是MapperMethodInvoker的实现类
           return new PlainMethodInvoker(new MapperMethod(mapperInterface, method, sqlSession.getConfiguration()));
         }
       });

@@ -19,6 +19,7 @@ import java.util.List;
 
 /**
  * @author Clinton Begin
+ * 用于描述一组SqlNode对象，通常一个Mapper配置是由多个SqlNode对象组成的，这些SqlNode对象通过MixedSqlNode进行关联，组成一个完整的动态SQL配置。
  */
 public class MixedSqlNode implements SqlNode {
   private final List<SqlNode> contents;

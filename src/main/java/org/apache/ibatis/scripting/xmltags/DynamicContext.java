@@ -15,19 +15,19 @@
  */
 package org.apache.ibatis.scripting.xmltags;
 
+import ognl.OgnlContext;
+import ognl.OgnlRuntime;
+import ognl.PropertyAccessor;
+import org.apache.ibatis.reflection.MetaObject;
+import org.apache.ibatis.session.Configuration;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringJoiner;
 
-import ognl.OgnlContext;
-import ognl.OgnlRuntime;
-import ognl.PropertyAccessor;
-
-import org.apache.ibatis.reflection.MetaObject;
-import org.apache.ibatis.session.Configuration;
-
 /**
  * @author Clinton Begin
+ * DynamicContext主要用于记录解析动态SQL语句之后产生的SQL语句片段，可以认为它是一个用于记录动态SQL语句解析结果的容器。
  */
 public class DynamicContext {
 
@@ -37,11 +37,12 @@ public class DynamicContext {
   static {
     OgnlRuntime.setPropertyAccessor(ContextMap.class, new ContextAccessor());
   }
-
+  //参数上下文,即里面会存放运行时候用户传入的实参
   private final ContextMap bindings;
+  //在SqlNode解析动态SQL时候，会将解析后的SQL语句片段添加到给属性中保存，最终拼凑出一条完成的SQL语句
   private final StringJoiner sqlBuilder = new StringJoiner(" ");
   private int uniqueNumber = 0;
-
+  //parameterObject是用户出入的实参
   public DynamicContext(Configuration configuration, Object parameterObject) {
     if (parameterObject != null && !(parameterObject instanceof Map)) {
       MetaObject metaObject = configuration.newMetaObject(parameterObject);

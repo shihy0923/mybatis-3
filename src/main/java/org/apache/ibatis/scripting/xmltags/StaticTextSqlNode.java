@@ -17,6 +17,7 @@ package org.apache.ibatis.scripting.xmltags;
 
 /**
  * @author Clinton Begin
+ * 用于描述动态SQL中的静态文本内容。生成RawSqlSource对象时候，它的SQL片段就是这个对象表示的.
  */
 public class StaticTextSqlNode implements SqlNode {
   private final String text;
