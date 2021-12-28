@@ -15,23 +15,23 @@
  */
 package org.apache.ibatis.transaction.jdbc;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
-import javax.sql.DataSource;
-
 import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.session.TransactionIsolationLevel;
 import org.apache.ibatis.transaction.Transaction;
 import org.apache.ibatis.transaction.TransactionException;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
+
 /**
  * {@link Transaction} that makes use of the JDBC commit and rollback facilities directly.
  * It relies on the connection retrieved from the dataSource to manage the scope of the transaction.
  * Delays connection retrieval until getConnection() is called.
  * Ignores commit or rollback requests when autocommit is on.
- *
+ *该实现依赖于JDBC Connection控制事务的提交和回滚
+ *在JdbcTransaction的构造函数中会初始化除connection字段之外的其他三个字段，而connection字段会延迟初始化，它会在调用getConnection()方法时通过dataSource.getConnection()方法初始化，并且同时设置autoCommit和事务隔离级别。JdbcTransaction的commit()方法和rollback()方法都会调用Connection对应方法实现的。
  * @author Clinton Begin
  *
  * @see JdbcTransactionFactory
@@ -39,12 +39,17 @@ import org.apache.ibatis.transaction.TransactionException;
 public class JdbcTransaction implements Transaction {
 
   private static final Log log = LogFactory.getLog(JdbcTransaction.class);
-
+  //JDBC的数据库连接
   protected Connection connection;
+  //数据库连接所属的DataSource
   protected DataSource dataSource;
+  //事务隔离级别
   protected TransactionIsolationLevel level;
+  //是否自动提交
   protected boolean autoCommit;
 
+  //在JdbcTransaction的构造函数中会初始化除connection字段之外的其他三个字段，
+  //而connection字段会延迟初始化，它会在调用getConnection()方法时通过dataSource.getConnection()方法初始化，并且同时设置autoCommit和事务隔离级别。
   public JdbcTransaction(DataSource ds, TransactionIsolationLevel desiredLevel, boolean desiredAutoCommit) {
     dataSource = ds;
     level = desiredLevel;
@@ -132,6 +137,7 @@ public class JdbcTransaction implements Transaction {
     }
   }
 
+  //初始化connection，并且同时设置autoCommit和事务隔离级别。
   protected void openConnection() throws SQLException {
     if (log.isDebugEnabled()) {
       log.debug("Opening JDBC Connection");

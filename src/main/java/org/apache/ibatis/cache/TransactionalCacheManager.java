@@ -15,14 +15,18 @@
  */
 package org.apache.ibatis.cache;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.ibatis.cache.decorators.TransactionalCache;
 import org.apache.ibatis.util.MapUtil;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author Clinton Begin
+ * TransactionalCacheManager用于管理CachingExecutor使用的二级缓存对象，其中只定义了一个transactionalCaches字段（HashMap＜Cache, TransactionalCache＞类型），它的key是对应的CachingExecutor使用的二级缓存对象，
+ * value是相应的TransactionalCache对象，在该TransactionalCache中封装了对应的二级缓存对象，也就是这里的key。 TransactionalCacheManager的实现比较简单，下面简单介绍各个方法的功能和实现。
+ * · clear()方法、putObject()方法、getObject()方法：调用指定二级缓存对应的TransactionalCache对象的对应方法，如果transactionalCaches集合中没有对应TransactionalCache对象，则通过getTransactionalCache()方法创建。
+ * · commit()方法、rollback()方法：遍历transactionalCaches集合，并调用其中各个TransactionalCache对象的相应方法。
  */
 public class TransactionalCacheManager {
 

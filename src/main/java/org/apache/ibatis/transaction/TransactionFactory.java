@@ -15,12 +15,11 @@
  */
 package org.apache.ibatis.transaction;
 
-import java.sql.Connection;
-import java.util.Properties;
+import org.apache.ibatis.session.TransactionIsolationLevel;
 
 import javax.sql.DataSource;
-
-import org.apache.ibatis.session.TransactionIsolationLevel;
+import java.sql.Connection;
+import java.util.Properties;
 
 /**
  * Creates {@link Transaction} instances.
@@ -33,6 +32,7 @@ public interface TransactionFactory {
    * Sets transaction factory custom properties.
    * @param props
    *          the new properties
+   *          配置TransactionFactory对象，一般紧跟在创建完成之后，完成对TransactionFactory的自定义配置
    */
   default void setProperties(Properties props) {
     // NOP
@@ -43,6 +43,7 @@ public interface TransactionFactory {
    * @param conn Existing database connection
    * @return Transaction
    * @since 3.1.0
+   * 在指定的连接上创建Transaction对象
    */
   Transaction newTransaction(Connection conn);
 
@@ -53,6 +54,7 @@ public interface TransactionFactory {
    * @param autoCommit Desired autocommit
    * @return Transaction
    * @since 3.1.0
+   * 从指定数据源中获取数据库连接，并在此连接之上创建Transaction对象
    */
   Transaction newTransaction(DataSource dataSource, TransactionIsolationLevel level, boolean autoCommit);
 

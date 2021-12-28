@@ -21,7 +21,8 @@ import java.sql.SQLException;
 /**
  * Wraps a database connection.
  * Handles the connection lifecycle that comprises: its creation, preparation, commit/rollback and close.
- *
+ *包装一个数据库的连接
+ * Mybatis对该接口有两个实现，JdbcTransaction和ManagedTransaction，分别由JdbcTransactionFactory和ManagedTransactionFactory创建
  * @author Clinton Begin
  */
 public interface Transaction {

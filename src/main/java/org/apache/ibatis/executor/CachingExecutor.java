@@ -71,6 +71,8 @@ public class CachingExecutor implements Executor {
     return delegate.isClosed();
   }
 
+  //CachingExecutor.update()方法并不会像BaseExecutor.update()方法处理一级存那样，直接清除缓存中的所有数据，
+  // 而是与CachingExecutor.query()方法一样调用flushCacheIfRequired()方法检测SQL节点的配置后，决定是否清除二级缓存。
   @Override
   public int update(MappedStatement ms, Object parameterObject) throws SQLException {
     flushCacheIfRequired(ms);
