@@ -46,7 +46,7 @@ public class BoundSql {
   //对于RawSqlSource，创建StaticSqlSource对象是在，Mapper.xml解析时机，因为它的sql是固定的，所以#{} 已经被替换成“?”的时机在Mapper.xml文件被解析的时候就完成了
   //对于DynamicSqlSource，与它相关的StaticSqlSource，是需要调用它的getBoundSql方法，该方法是在org.apache.ibatis.executor.CachingExecutor.query(org.apache.ibatis.mapping.MappedStatement, java.lang.Object, org.apache.ibatis.session.RowBounds, org.apache.ibatis.session.ResultHandler)执行的时候才会调用，因为是动态sql，只有在调用的时候根据具体的参数值，动态确定最终的完整的要执行的sql语句。所以#{} 已经被替换成“?”的时机在具体的SQL调用时候才完成。
   private final String sql;
-  //SQL中的参数属性集合
+  //SQL中的参数属性集合,在BoundSql中记录的SQL语句中可能包含“?”占位符，而每个“?”占位符都对应了BoundSql.parameterMappings集合中的一个元素
   private final List<ParameterMapping> parameterMappings;
   //客户端执行SQL语句的时候传入的实际参数
   private final Object parameterObject;

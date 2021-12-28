@@ -15,12 +15,6 @@
  */
 package org.apache.ibatis.executor;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Collections;
-import java.util.List;
-
 import org.apache.ibatis.cursor.Cursor;
 import org.apache.ibatis.executor.statement.StatementHandler;
 import org.apache.ibatis.logging.Log;
@@ -31,8 +25,17 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.transaction.Transaction;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Collections;
+import java.util.List;
+
 /**
- * @author Clinton Begin
+ * @author Clinton Begin+
+ * SimpleExecutor继承了BaseExecutor抽象类，它是最简单的Executor接口实现。
+ * 正如前面所说，Executor使用了模板方法模式，一级缓存等固定不变的操作都封装到了BaseExecutor中，
+ * 在SimpleExecutor中就不必再关心一级缓存等操作，只需要专注实现4个基本方法的实现即可。
  */
 public class SimpleExecutor extends BaseExecutor {
 
@@ -57,11 +60,18 @@ public class SimpleExecutor extends BaseExecutor {
   public <E> List<E> doQuery(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) throws SQLException {
     Statement stmt = null;
     try {
+      //获取配置对象
       Configuration configuration = ms.getConfiguration();
+      //创建StatementHandler对象，实际返回的是RoutingStatementHandler对象
+      //根据org.apache.ibatis.mapping.MappedStatement.statementType选择具体的StatementHandler实现
       StatementHandler handler = configuration.newStatementHandler(wrapper, ms, parameter, rowBounds, resultHandler, boundSql);
+      //完成StatementHandler的创建和初始化，该方法首先会调用StatementHandler.prepare()方法创建Statement对象
+      //然后调用StatementHandler.parameterize()方法处理占位符
       stmt = prepareStatement(handler, ms.getStatementLog());
+      //调用StatementHandler.query()方法，执行SQL语句，并通过ResultSetHandler完成结果集的映射
       return handler.query(stmt, resultHandler);
     } finally {
+      //关闭Statement对象
       closeStatement(stmt);
     }
   }
@@ -84,7 +94,9 @@ public class SimpleExecutor extends BaseExecutor {
   private Statement prepareStatement(StatementHandler handler, Log statementLog) throws SQLException {
     Statement stmt;
     Connection connection = getConnection(statementLog);
+    //创建Statement对象
     stmt = handler.prepare(connection, transaction.getTimeout());
+    //处理占位符
     handler.parameterize(stmt);
     return stmt;
   }

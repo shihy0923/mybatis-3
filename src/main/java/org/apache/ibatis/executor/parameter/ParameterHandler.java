@@ -22,13 +22,13 @@ import java.sql.SQLException;
  * A parameter handler sets the parameters of the {@code PreparedStatement}.
  *
  * @author Clinton
- * 在BoundSql中记录的SQL语句中可能包含“?”占位符，而每个“?”占位符都对应了BoundSql.parameterMappings集合中的一个元素
  * ParameterHandler接口提供了唯一一个实现类，DefaultParameterHandler
  */
 public interface ParameterHandler {
 
   Object getParameterObject();
 
+  //在ParameterHandler接口中只定义了一个setParameters()方法，该方法主要负责调用PreparedStatement.set()方法为SQL语句绑定实参。MyBatis只为ParameterHandler接口提供了唯一一个实现类
   void setParameters(PreparedStatement ps) throws SQLException;
 
 }

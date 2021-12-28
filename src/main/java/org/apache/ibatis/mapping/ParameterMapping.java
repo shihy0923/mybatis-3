@@ -25,6 +25,7 @@ import java.sql.ResultSet;
 /**
  * @author Clinton Begin
  * 该类记录的“#{}”占位符中的参数的属性
+ * 在BoundSql中记录的SQL语句中可能包含“?”占位符，而每个“?”占位符都对应了BoundSql.parameterMappings集合中的一个元素
  */
 public class ParameterMapping {
 
