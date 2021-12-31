@@ -45,12 +45,16 @@ public class DynamicContext {
   //parameterObject是用户出入的实参
   public DynamicContext(Configuration configuration, Object parameterObject) {
     if (parameterObject != null && !(parameterObject instanceof Map)) {
+      //对于非Map类型的参数，会创建对应的MetaObject对象，并封装成ContextMap对象
       MetaObject metaObject = configuration.newMetaObject(parameterObject);
       boolean existsTypeHandler = configuration.getTypeHandlerRegistry().hasTypeHandler(parameterObject.getClass());
+      //初始化bindings集合
       bindings = new ContextMap(metaObject, existsTypeHandler);
     } else {
       bindings = new ContextMap(null, false);
     }
+    //将PARAMETER_OBJECT_KEY-->parameterObject这一对应关系添加到bindings集合中
+    //PARAMETER_OBJECT_KEY的值是"_parameter"，在有的sqlNode实现中会直接使该字面值
     bindings.put(PARAMETER_OBJECT_KEY, parameterObject);
     bindings.put(DATABASE_ID_KEY, configuration.getDatabaseId());
   }
@@ -74,7 +78,8 @@ public class DynamicContext {
   public int getUniqueNumber() {
     return uniqueNumber++;
   }
-
+  //重写了HashMap的get()方法，实现的功能是，先从父类中取，没有再从自己的成员变量parameterMetaObject中获取，这个parameterMetaObject是用户传入的实参的MetaObject对象,
+  //fallbackParameterObject默认是false
   static class ContextMap extends HashMap<String, Object> {
     private static final long serialVersionUID = 2977601501966151582L;
     private final MetaObject parameterMetaObject;

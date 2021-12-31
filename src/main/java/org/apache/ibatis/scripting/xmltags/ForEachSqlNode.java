@@ -16,13 +16,11 @@
 package org.apache.ibatis.scripting.xmltags;
 
 
-import java.util.Map;
-import java.util.Optional;
-
 import org.apache.ibatis.parsing.GenericTokenParser;
 import org.apache.ibatis.session.Configuration;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author Clinton Begin
@@ -65,10 +63,20 @@ public class ForEachSqlNode implements SqlNode {
     this.item = item;
     this.configuration = configuration;
   }
-
+ //这个方法走完，最终解析出来的sql是 select * from tbl_department
+ //        where id in
+ //         (
+ //            #{__frch_id_0}
+ //         ,
+ //            #{__frch_id_1}
+ //         )
+  //且context中的bindings，里面放了，key是"__frch_id_0" ，value是我们创建的集合的第一个值，key是“__frch_id_1”，value是我们创建的集合的第二个值。等等。。。。。。。。
   @Override
   public boolean apply(DynamicContext context) {
+    //获取用户实参，如list，这个实参是包装过的，是org.apache.ibatis.scripting.xmltags.DynamicContext.ContextMap类型的，key是“_parameter”，value是我们的List类型入参
     Map<String, Object> bindings = context.getBindings();
+    //collectionExpression表达式表示的是，我们@Param注解定义的，或者是默认的"collection","list"或者是"array"。这就代码表示的就是从bindings这个总的集合中，找到key表达式符合collectionExpression的value
+    //iterable其实就是我们用户实参本身，就是我们自己new 的那个List对象。
     final Iterable<?> iterable = evaluator.evaluateIterable(collectionExpression, bindings,
       Optional.ofNullable(nullable).orElseGet(configuration::isNullableOnForEach));
     if (iterable == null || !iterable.iterator().hasNext()) {
@@ -93,6 +101,7 @@ public class ForEachSqlNode implements SqlNode {
         applyItem(context, mapEntry.getValue(), uniqueNumber);
       } else {
         applyIndex(context, i, uniqueNumber);
+        //一般走这里
         applyItem(context, o, uniqueNumber);
       }
       contents.apply(new FilteredDynamicContext(configuration, context, index, item, uniqueNumber));
@@ -118,6 +127,7 @@ public class ForEachSqlNode implements SqlNode {
   private void applyItem(DynamicContext context, Object o, int i) {
     if (item != null) {
       context.bind(item, o);
+      //item就是我们在mapper文件中配置的item
       context.bind(itemizeItem(item, i), o);
     }
   }
@@ -133,7 +143,7 @@ public class ForEachSqlNode implements SqlNode {
       context.appendSql(close);
     }
   }
-
+  //根据我们在mapper文件中配置的item，以及一些特殊的标识生成我们的key，如__frch_id_0
   private static String itemizeItem(String item, int i) {
     return ITEM_PREFIX + item + "_" + i;
   }

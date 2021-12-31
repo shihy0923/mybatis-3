@@ -108,7 +108,7 @@ public class CachingExecutor implements Executor {
         //二级缓存不能保存输出类型的参数，如果查询操作调用了包含输出参数的存储过程，则报错
         ensureNoOutParams(ms, boundSql);
         @SuppressWarnings("unchecked")
-          //吃查询二级缓存
+          //查询二级缓存
         List<E> list = (List<E>) tcm.getObject(cache, key);
         if (list == null) {
           //二级缓存没有相应的结果对象，调用封装的Executor对象的query()方法，这里面会先查询一级缓存

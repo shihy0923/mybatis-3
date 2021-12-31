@@ -52,7 +52,7 @@ public class BoundSql {
   private final Object parameterObject;
   //空的HashMap集合，之后会复制DynamicContext.bindings集合中的内容,其实也就是用户传入的实参的相关信息
   private final Map<String, Object> additionalParameters;
-  //additionalParameters集合对应的MetaObject对象
+  //additionalParameters集合对应的MetaObject对象。注意，这里会往additionalParameters里面王属性
   private final MetaObject metaParameters;
 
   public BoundSql(Configuration configuration, String sql, List<ParameterMapping> parameterMappings, Object parameterObject) {

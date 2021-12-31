@@ -137,8 +137,10 @@ public class ParamNameResolver {
     //无参数，返回null
     if (args == null || paramCount == 0) {
       return null;
-    } else if (!hasParamAnnotation && paramCount == 1) {//未使用@Param且只有一个参数
+      //未使用@Param且只有一个参数
+    } else if (!hasParamAnnotation && paramCount == 1) {
       Object value = args[names.firstKey()];
+      //如果参数是list或数组类型的，包装成ParamMap对象
       return wrapToMapIfCollection(value, useActualParamName ? names.get(0) : null);
     } else {//处理使用@Param注解指定了参数名或有多个参数的情况
       //param这个Map中记录了参数名与实参之间的关系。ParamMap继承了HashMap，如果向其中添加已经存在的key，会报错，其他行为和HashMap相同
@@ -168,6 +170,10 @@ public class ParamNameResolver {
    *                        (If specify a name, set an object to {@link ParamMap} with specified name)
    * @return a {@link ParamMap}
    * @since 3.5.5
+   * 如果object是一个集合或者数组，则把它包装成一个ParamMap。
+   * 将我们调用 statement 传参时，兼容集合和数组类型的参数做的工作。---《掘金》
+   * 个人认为，这为了兼容一些特别的动态sql。如，<foreach>。如果没有使用@Param这个注解定义一个入参的名字，则需要用一个key来引用这个集合或者数组，即下面代码的，"collection"、"list" 、"array"。、
+   * 到时候根据这个key获取用户传入的入参,放入org.apache.ibatis.scripting.xmltags.DynamicContext#bindings，key是自定义生成的__frch_id_0等，详情见org.apache.ibatis.scripting.xmltags.DynamicSqlSource#getBoundSql(java.lang.Object)的注释
    */
   public static Object wrapToMapIfCollection(Object object, String actualParamName) {
     if (object instanceof Collection) {
