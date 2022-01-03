@@ -15,9 +15,6 @@
  */
 package org.apache.ibatis.session.defaults;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
 import org.apache.ibatis.exceptions.ExceptionFactory;
 import org.apache.ibatis.executor.ErrorContext;
 import org.apache.ibatis.executor.Executor;
@@ -31,8 +28,13 @@ import org.apache.ibatis.transaction.Transaction;
 import org.apache.ibatis.transaction.TransactionFactory;
 import org.apache.ibatis.transaction.managed.ManagedTransactionFactory;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+
 /**
  * @author Clinton Begin
+ * //DefaultSqlSessionFactory是一个具体工厂类，实现了SqlSessionFactory接口。DefaultSql-SessionFactory主要提供了两种创建DefaultSqlSession对象的方式，一种方式是通过数据源获取数据库连接(org.apache.ibatis.session.defaults.DefaultSqlSessionFactory#openSessionFromDataSource(org.apache.ibatis.session.ExecutorType, org.apache.ibatis.session.TransactionIsolationLevel, boolean))，并创建Executor对象以及DefaultSqlSession对象.
+ * 另一种方式是用户提供数据库连接对象，DefaultSqlSessionFactory会使用该数据库连接对象创建Executor对象以及DefaultSqlSession对象(org.apache.ibatis.session.defaults.DefaultSqlSessionFactory#openSessionFromConnection(org.apache.ibatis.session.ExecutorType, java.sql.Connection))
  */
 public class DefaultSqlSessionFactory implements SqlSessionFactory {
 
@@ -87,13 +89,19 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
     return configuration;
   }
 
+  //方式一：通过数据源获取数据库连接，并创建Executor对象以及DefaultSqlSession对象
   private SqlSession openSessionFromDataSource(ExecutorType execType, TransactionIsolationLevel level, boolean autoCommit) {
     Transaction tx = null;
     try {
+      //获取mybatis-config.xml配置文件中配置的Environment对象
       final Environment environment = configuration.getEnvironment();
+      //获取TransactionFactory对象
       final TransactionFactory transactionFactory = getTransactionFactoryFromEnvironment(environment);
+      //创建Transaction对象
       tx = transactionFactory.newTransaction(environment.getDataSource(), level, autoCommit);
+      //根据配置创建Executor
       final Executor executor = configuration.newExecutor(tx, execType);
+      //创建DefaultSqlSession对象
       return new DefaultSqlSession(configuration, executor, autoCommit);
     } catch (Exception e) {
       closeTransaction(tx); // may have fetched a connection so lets call close()
@@ -103,6 +111,7 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
     }
   }
 
+  //方式二：用户提供数据库连接对象，DefaultSqlSessionFactory会使用该数据库连接对象创建Executor对象以及DefaultSqlSession对象
   private SqlSession openSessionFromConnection(ExecutorType execType, Connection connection) {
     try {
       boolean autoCommit;

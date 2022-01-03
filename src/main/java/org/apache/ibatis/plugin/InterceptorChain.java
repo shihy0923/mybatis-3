@@ -20,15 +20,17 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * InterceptorChain中使用interceptors字段（ArrayList＜Interceptor＞类型）记录了mybatis-config.xml文件中配置的拦截器。
  * @author Clinton Begin
  */
 public class InterceptorChain {
 
   private final List<Interceptor> interceptors = new ArrayList<>();
 
+  //在InterceptorChain.pluginAll()方法中会遍历该interceptors集合，并调用其中每个元素的plugin()方法创建代理对象，具体实现如下所示。
   public Object pluginAll(Object target) {
-    for (Interceptor interceptor : interceptors) {
-      target = interceptor.plugin(target);
+    for (Interceptor interceptor : interceptors) {//遍历interceptors集合
+      target = interceptor.plugin(target);//调用Interceptor.plugin()方法
     }
     return target;
   }

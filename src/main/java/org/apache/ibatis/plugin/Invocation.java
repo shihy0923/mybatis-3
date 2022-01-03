@@ -45,6 +45,8 @@ public class Invocation {
     return args;
   }
 
+  //发现，还是利用反射调用被代理对象的目标方法。
+  //所以拦截器的intercept()方法中处理我们自定义的逻辑后，还想调用被代理对象的目标方法时候，可以直接调用proceed()方法。
   public Object proceed() throws InvocationTargetException, IllegalAccessException {
     return method.invoke(target, args);
   }
