@@ -15,35 +15,54 @@
  */
 package org.apache.ibatis.mapping;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
 /**
+ * 每个ResultMapping 象记录了结果集中的一列与 JavaBean 个属性之间的映射关系 。＜resultMap＞节点下除了＜discriminator＞子节点 的其他子节点，都
+ * 被解析成对应的 ResultMapping 对象。
  * @author Clinton Begin
  */
 public class ResultMapping {
-
+  //Configuration对象
   private Configuration configuration;
+  //对应节点的property属性，表示的是与该列进行映射的属性
   private String property;
+  //对应节点的column属性，表示的是从数据库中得到的列名或者是别名
   private String column;
+  //对应节点的javaType属性，表示的是一个JavaBean的完全限定名，或一个类型别名
   private Class<?> javaType;
+  //对应节点的jdbcType属性，表示的是进行映射的列的JDBC类型
   private JdbcType jdbcType;
+  //对应节点的 typeHandler 属性，表示的是类型处理器，它会覆盖默认的类型处理器，后面会介绍该字段的作用
   private TypeHandler<?> typeHandler;
+  //对应节点的 resultMap 属性，该属性通过id引用了另一个 <resultMap>节点定义，它负责将结采集中的一部
+  //分列映射成其他关联的结果对象 这样我们就可以通过join方式进行关联查询，然后直接映射成多个对象，
+  //并同时设置这些对象之间的组合关系
   private String nestedResultMapId;
+  //对应节点的 <select> 属性，该属性通过id引用了另一个 <select>节点定义，它会把指定的列的值传入
+  //select 属性指定的 select 语句中作为参数进行查询 使用 select 属性可能会导致 N+l 问题，请注意
   private String nestedQueryId;
+  //对应节点的 notNullColumns属性拆分后的结果
   private Set<String> notNullColumns;
+  //对应节点的 columnPrefix 属性
   private String columnPrefix;
+  //处理后的标志，标志共两个： id和constructor
   private List<ResultFlag> flags;
+  //对应节点的 column属性拆分后生成的结果， composites.size () >0 会使 column为null
   private List<ResultMapping> composites;
+  //对应节点的 resultSet 属性
   private String resultSet;
+  //对应节点的 foreignColumn 属性
   private String foreignColumn;
+  //是否延迟加载，对应节点 fetchType 属性
   private boolean lazy;
 
   ResultMapping() {
