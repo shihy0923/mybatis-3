@@ -52,6 +52,8 @@ import org.apache.ibatis.type.TypeHandler;
 /**
  * @author Clinton Begin
  * @author Kazuki Shimizu
+ * XMLMapperBuilder负责
+ * 解析映射配置文件，它继承了 BaseBuilder抽象类，也是具体建造者的角色
  */
 public class XMLMapperBuilder extends BaseBuilder {
 
@@ -91,14 +93,20 @@ public class XMLMapperBuilder extends BaseBuilder {
   }
 
   public void parse() {
+    //判断是否已经加载过该映射文件
     if (!configuration.isResourceLoaded(resource)) {
+      //处理<mapper>节点
       configurationElement(parser.evalNode("/mapper"));
+      //将 resource 添加到 Configuration.loadedResources 集合中保存 ， 它是HashSet<String>类型的集合，其中记录了已经加载过的映射文件 。
       configuration.addLoadedResource(resource);
+      //注册Mapper接口
       bindMapperForNamespace();
     }
-
+    //处理configurationElement()方法 中 解析失败的<resultMap>节点
     parsePendingResultMaps();
+    //处理configurationElement()方法 中 解析失败的<cache-ref>节点
     parsePendingCacheRefs();
+    //处理configurationElement()方法 中 解析失败的SQL语句节点
     parsePendingStatements();
   }
 
@@ -108,11 +116,14 @@ public class XMLMapperBuilder extends BaseBuilder {
 
   private void configurationElement(XNode context) {
     try {
+      //获取<mapper>节点的namespace 属性
       String namespace = context.getStringAttribute("namespace");
       if (namespace == null || namespace.isEmpty()) {
         throw new BuilderException("Mapper's namespace cannot be empty");
       }
+      //设置 MapperBuilderAssistant 的 currentNamespace 字段，记录当前命名空间
       builderAssistant.setCurrentNamespace(namespace);
+      //以下来是解析相应的xml文件节点
       cacheRefElement(context.evalNode("cache-ref"));
       cacheElement(context.evalNode("cache"));
       parameterMapElement(context.evalNodes("/mapper/parameterMap"));
@@ -201,15 +212,27 @@ public class XMLMapperBuilder extends BaseBuilder {
 
   private void cacheElement(XNode context) {
     if (context != null) {
+      //获取<cache>节点的 type属性，默认位是 PERPETUAL
       String type = context.getStringAttribute("type", "PERPETUAL");
+      //查找type属性对应的 Cache 接口实现，
       Class<? extends Cache> typeClass = typeAliasRegistry.resolveAlias(type);
+      //获取<cache>节点的eviction 属性，默认位是 LRU
       String eviction = context.getStringAttribute("eviction", "LRU");
+      //解析eviction属性指定的Cache装饰器类型
       Class<? extends Cache> evictionClass = typeAliasRegistry.resolveAlias(eviction);
+      //获取<cache>节点的flushinterval 属性，默认值是 null
       Long flushInterval = context.getLongAttribute("flushInterval");
+      //获取<cache>节点的 size 属性，默认位是 null
       Integer size = context.getIntAttribute("size");
+      //获取<cache>节点的 readOnly 属性，默认位是 false
       boolean readWrite = !context.getBooleanAttribute("readOnly", false);
+      //获取<cache>节点的 blocking 属性，默认位是 false
       boolean blocking = context.getBooleanAttribute("blocking", false);
+      //获取<cache>节点下的子节点，将用于初始化二级缓存
       Properties props = context.getChildrenAsProperties();
+      //通过 MapperBuilderAssistant 创建Cache 对象，并添加到Configuration.caches 集合中保存
+      //MapperBuilderAssistant 是一个辅助类 ， 其useNewCache()方法负责创建 Cache 对象， 并将
+      //其添加到Configuration.caches集合中保存。
       builderAssistant.useNewCache(typeClass, evictionClass, flushInterval, size, readWrite, blocking, props);
     }
   }
