@@ -54,28 +54,37 @@ public class XMLStatementBuilder extends BaseBuilder {
   }
 
   public void parseStatementNode() {
+    //获取SQL节点的id以及databaseId 属性 ，若其databaseid属性值与当前使用的数据库不匹配 ，则不加载该SQL节点；若存在相同id且databaseid不为空的SQL节点，则不再加载该SQL节点
     String id = context.getStringAttribute("id");
     String databaseId = context.getStringAttribute("databaseId");
 
     if (!databaseIdMatchesCurrent(id, databaseId, this.requiredDatabaseId)) {
       return;
     }
-
+    //根据SQL节点的名称决定其SqlCommandType
     String nodeName = context.getNode().getNodeName();
     SqlCommandType sqlCommandType = SqlCommandType.valueOf(nodeName.toUpperCase(Locale.ENGLISH));
+    //获取SQL节点的多种属性值
     boolean isSelect = sqlCommandType == SqlCommandType.SELECT;
     boolean flushCache = context.getBooleanAttribute("flushCache", !isSelect);
     boolean useCache = context.getBooleanAttribute("useCache", isSelect);
     boolean resultOrdered = context.getBooleanAttribute("resultOrdered", false);
 
     // Include Fragments before parsing
+    //在解析SQL语句之前，先处理其中的<include>节点
     XMLIncludeTransformer includeParser = new XMLIncludeTransformer(configuration, builderAssistant);
+    //在解析SQL节点之前，首先通过 XMLIncludeTransformer 解析 SQL 语句中的<include>节点 ，
+    //该过程会将<include>节点替换成<sql>节点中定义的SQL片段，并将其中的“${xxx}”占位符
+    //替换成真实的参数，该解析过程是在XMLIncludeTransformer.applylncludes()方法中实现的
     includeParser.applyIncludes(context.getNode());
-
+    //获取SQL节点的属性值parameterType
     String parameterType = context.getStringAttribute("parameterType");
     Class<?> parameterTypeClass = resolveClass(parameterType);
-
+    //获取SQL节点的属性值lang
     String lang = context.getStringAttribute("lang");
+    //获得 lang 对应的 LanguageDriver 对象
+    //在 Configuration 的构造方法中,languageRegistry.setDefaultDriverClass(XMLLanguageDriver.class);
+    //所以这里返回的是XMLLanguageDriver对象
     LanguageDriver langDriver = getLanguageDriver(lang);
 
     // Parse selectKey after includes and remove them.
@@ -83,8 +92,11 @@ public class XMLStatementBuilder extends BaseBuilder {
 
     // Parse the SQL (pre: <selectKey> and <include> were parsed and removed)
     KeyGenerator keyGenerator;
+    //获取<selectKey>节点对应的SelectKeyGenerator的id
     String keyStatementId = id + SelectKeyGenerator.SELECT_KEY_SUFFIX;
     keyStatementId = builderAssistant.applyCurrentNamespace(keyStatementId, true);
+    //这里会检测SQL节点中是否配置了<selectKey>节点、SQL节点的useGeneratedKeys属性值、
+    //mybatis-config.xml中全局的useGeneratedKeys配置，以及是否为insert语句，决定使用的KeyGenerator接口实现。后面会详细介绍 KeyGenerator 接口及其实现，具体代码省略
     if (configuration.hasKeyGenerator(keyStatementId)) {
       keyGenerator = configuration.getKeyGenerator(keyStatementId);
     } else {
@@ -92,8 +104,11 @@ public class XMLStatementBuilder extends BaseBuilder {
           configuration.isUseGeneratedKeys() && SqlCommandType.INSERT.equals(sqlCommandType))
           ? Jdbc3KeyGenerator.INSTANCE : NoKeyGenerator.INSTANCE;
     }
-
+    //调用LanguageDriver.createSqlSource()方法创建SqlSource对象
+    //在 XMLLanguageDriver.createSqlSource()方法中会创建 XMLScriptBuilder 对象并调用
+    //XMLScriptBuilder.parseScriptNode()方法创建SqlSource对象
     SqlSource sqlSource = langDriver.createSqlSource(configuration, context, parameterTypeClass);
+    //获取SQL节点的多种属性值，例如，fetchSize 、timeout。。。。。。。。。。。。。。。。
     StatementType statementType = StatementType.valueOf(context.getStringAttribute("statementType", StatementType.PREPARED.toString()));
     Integer fetchSize = context.getIntAttribute("fetchSize");
     Integer timeout = context.getIntAttribute("timeout");
@@ -110,6 +125,7 @@ public class XMLStatementBuilder extends BaseBuilder {
     String keyColumn = context.getStringAttribute("keyColumn");
     String resultSets = context.getStringAttribute("resultSets");
 
+    //通过MapperBuilderAssistant创建MappedStatement对象，并添加到Configuration.mappedStatements 集合中保存
     builderAssistant.addMappedStatement(id, sqlSource, statementType, sqlCommandType,
         fetchSize, timeout, parameterMap, parameterTypeClass, resultMap, resultTypeClass,
         resultSetTypeEnum, flushCache, useCache, resultOrdered,
