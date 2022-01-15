@@ -74,23 +74,31 @@ public class PreparedStatementHandler extends BaseStatementHandler {
     return resultSetHandler.handleCursorResultSets(ps);
   }
 
+  //PreparedStatementHandler. instantiateStatement（） 方法直接调用JDBCConnection的prepareStatement（）方法创建 PreparedStatement 对象，
   @Override
   protected Statement instantiateStatement(Connection connection) throws SQLException {
+    //获取待执行的 SQL 语句
     String sql = boundSql.getSql();
+    //根据MappedStatement.keyGenerator 字段的位，创建PreparedStatement对象
     if (mappedStatement.getKeyGenerator() instanceof Jdbc3KeyGenerator) {
       String[] keyColumnNames = mappedStatement.getKeyColumns();
       if (keyColumnNames == null) {
+        //返回数据库生成的主键
         return connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
       } else {
+        //在insert语句执行完成之后，会将keyColumnNames指定的列返回
         return connection.prepareStatement(sql, keyColumnNames);
       }
     } else if (mappedStatement.getResultSetType() == ResultSetType.DEFAULT) {
+      //设置结果集是否可以滚动以及其游标是否可以上下移动，设置结果集是否可更新
       return connection.prepareStatement(sql);
     } else {
+      //创建普通的PreparedStatement对象
       return connection.prepareStatement(sql, mappedStatement.getResultSetType().getValue(), ResultSet.CONCUR_READ_ONLY);
     }
   }
 
+  //绑定Statement执行时所需的实参
   @Override
   public void parameterize(Statement statement) throws SQLException {
     parameterHandler.setParameters((PreparedStatement) statement);

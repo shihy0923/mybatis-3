@@ -24,8 +24,20 @@ import java.util.regex.Pattern;
 
 /**
  * @author Clinton Begin
- *  该类与StaticTextSqlNode类不同的是，当静态文本中包含${}占位符时，说明${}需要在Mapper调用时将${}替换为具体的参数值。因此，
- *  使用TextSqlNode类来描述。
+ * TextSqlNode 表示的是包含“${}”占位符的动态 SQL 节点。
+ * 该类与StaticTextSqlNode类不同的是，当静态文本中包含${}占位符时，说明${}需要在Mapper调用时将${}替换为具体的参数值。因此，
+ * 使用TextSqlNode类来描述。
+ * 例子：
+ * <update id="updateDepartmentByMap" parameterType="map">
+ * update tbl_department
+ * <foreach collection="beanMap" index="key" item="value" open="set " separator=",">
+ * <if test="value != null">
+ * ${key} = #{value}
+ * </if>
+ * </foreach>
+ * where id = #{id}
+ * </update>
+ * 那么TextSqlNode这个对象的 text属性的内容就是"${key} = #{value}"
  */
 public class TextSqlNode implements SqlNode {
   private final String text;
@@ -48,17 +60,24 @@ public class TextSqlNode implements SqlNode {
     return checker.isDynamic();
   }
 
+  //使用 GenericTokenParser 解析“${}”占位符，并直接替换成用户给定的实际参数值
   @Override
   public boolean apply(DynamicContext context) {
+    //创建 GenericTokenParser解析器， GenericTokenParser介绍过了，这里重点来看BindingTokenParser的功能
     GenericTokenParser parser = createParser(new BindingTokenParser(context, injectionFilter));
+    //将解析后的 SQL 片段添加到 DynamicContext 中
     context.appendSql(parser.parse(text));
     return true;
   }
 
   private GenericTokenParser createParser(TokenHandler handler) {
+    //解析的是”${}”占位符
     return new GenericTokenParser("${", "}", handler);
   }
 
+  //BindingTokenParser 是 TextSq!Node 中定义的内部类，继承了 TokenHandler 接口，它的 主要
+  //功能是根据 DynamicContext.bindings 集合中的信息解析 SQL 语句节点中的“ ${}”占位符。
+  //BindingTokenParser.context字段指向了对应的DynamicContext对象
   private static class BindingTokenParser implements TokenHandler {
 
     private DynamicContext context;
@@ -69,16 +88,22 @@ public class TextSqlNode implements SqlNode {
       this.injectionFilter = injectionFilter;
     }
 
+    //这里通过一个示例简单描述该解析过程，假设用户传入的实参中包含了“ id->1”的对应关
+    //系，在 TextSqlNode.apply()方法解析时，会将“ id=${id｝”中的“${id｝”占位符直接替换成“1”
+    //得到“ id=1”， 并将其追加到 DynamicContext中
     @Override
     public String handleToken(String content) {
+      //获取用户提供的实参
       Object parameter = context.getBindings().get("_parameter");
       if (parameter == null) {
         context.getBindings().put("value", null);
       } else if (SimpleTypeRegistry.isSimpleType(parameter.getClass())) {
         context.getBindings().put("value", parameter);
       }
+      //通过OGNL解析content的值
       Object value = OgnlCache.getValue(content, context.getBindings());
       String srtValue = value == null ? "" : String.valueOf(value); // issue #274 return "" instead of "null"
+      //检测合法性
       checkInjection(srtValue);
       return srtValue;
     }

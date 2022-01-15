@@ -36,6 +36,7 @@ import java.sql.Statement;
 /**
  * @author Clinton Begin
  * BaseStatementHandler是一个实现了StatementHandler接口的抽象类，它只提供了一些参数绑定相关的方法，并没有实现操作数据库的方法
+ * BaseStatementHandler 依赖两个 重要 的组件，它们分别是ParameterHandler和ResultSetHandler
  */
 public abstract class BaseStatementHandler implements StatementHandler {
 
@@ -84,14 +85,19 @@ public abstract class BaseStatementHandler implements StatementHandler {
     return parameterHandler;
   }
 
+  //从连接中获取一个Statement
+  //方法首先调用instantiateStatement（）抽象方法初始化 java.sql.Statement 对象 ， 然后为其配置超时时间以及fetchSize 等设直，代码比较简单
   @Override
   public Statement prepare(Connection connection, Integer transactionTimeout) throws SQLException {
     ErrorContext.instance().sql(boundSql.getSql());
     Statement statement = null;
     try {
+      //创建一个JDBC的Statement对象
       statement = instantiateStatement(connection);
+      //设置超时时间
       setStatementTimeout(statement, transactionTimeout);
       setFetchSize(statement);
+      //返回这个Statement对象
       return statement;
     } catch (SQLException e) {
       closeStatement(statement);

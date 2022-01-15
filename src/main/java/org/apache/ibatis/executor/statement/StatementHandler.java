@@ -29,6 +29,9 @@ import java.util.List;
  * @author Clinton Begin
  * StatementHandler接口是MyBatis的核心接口之一，它完成了MyBatis中最核心的工作，也是后面要介绍的Executor接口实现的基础。
  * StatementHandler接口中的功能很多，例如创建Statement对象，为SQL语句绑定实参，执行select、insert、update、delete等多种类型的SQL语句，批量执行SQL语句，将结果集映射成结果对象。
+ *
+ * StatementHandler依赖 ParameterHandler 和 ResultSetHandler
+ * 完成了MyBatis的核心功能，它控制着参数绑定 、SQL语句执行、结果集映射等一系列核心流程
  */
 public interface StatementHandler {
 

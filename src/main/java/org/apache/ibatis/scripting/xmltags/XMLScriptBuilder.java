@@ -87,16 +87,20 @@ public class XMLScriptBuilder extends BaseBuilder {
     for (int i = 0; i < children.getLength(); i++) {
       //创建 XNode ，该过程会将能解析掉的 ”${}” 都解析掉
       XNode child = node.newXNode(children.item(i));
-      //对文本节点的处理
+      //如果child不包含子标签，则说明child标签里面是文本，则在这里对文本进行处理,
       if (child.getNode().getNodeType() == Node.CDATA_SECTION_NODE || child.getNode().getNodeType() == Node.TEXT_NODE) {
+        //获取文本内容
         String data = child.getStringBody("");
+        //不管三七二十一，拿到文本内容，上来就先封装成TextSqlNode对象，都先当作是动态的SQL
         TextSqlNode textSqlNode = new TextSqlNode(data);
-        //解析SQL 语句，如果含有未解析的”${}”占位符，则为动态 SQL
+        //然后就来判断是否真是动态SQL，如果含有未解析的”${}”占位符，则为动态 SQL
         if (textSqlNode.isDynamic()) {
+          //动态标签直接用TextSqlNode表示
           contents.add(textSqlNode);
           //标记为动态SQL语句
           isDynamic = true;
         } else {
+          //如果不是动态SQL，则把文本的包装到StaticTextSqlNode里面
           contents.add(new StaticTextSqlNode(data));
         }
       } else if (child.getNode().getNodeType() == Node.ELEMENT_NODE) { // issue #628//如果子节点是一个标签，那么一定是动态 SQL
@@ -108,7 +112,7 @@ public class XMLScriptBuilder extends BaseBuilder {
         if (handler == null) {
           throw new BuilderException("Unknown element <" + nodeName + "> in SQL statement.");
         }
-        //处理动态SQL ，并将解析得到的SqlNode对象放入contents集合中保存.以WhereHandler实现为例进行分析,其他 NodeHandler 接口实现类的原理类似
+        //处理动态SQL ，得到动态标签对应的SqlNode对象， 并将解析得到的SqlNode对象放入contents集合中保存.以WhereHandler实现为例进行分析,其他 NodeHandler 接口实现类的原理类似
         handler.handleNode(child, contents);
         isDynamic = true;
       }

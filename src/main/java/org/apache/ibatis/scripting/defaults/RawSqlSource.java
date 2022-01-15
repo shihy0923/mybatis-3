@@ -37,6 +37,7 @@ import java.util.HashMap;
  */
 public class RawSqlSource implements SqlSource {
 
+  //是一个StaticSqlSource对象
   private final SqlSource sqlSource;
 
   //RawSqlSource在构造方法中首先会调用getSql()方法，其中通过调用SqlNode.apply()方法完成SQL语句的拼装和初步处理；之后会使用
@@ -48,6 +49,7 @@ public class RawSqlSource implements SqlSource {
   public RawSqlSource(Configuration configuration, String sql, Class<?> parameterType) {
     SqlSourceBuilder sqlSourceParser = new SqlSourceBuilder(configuration);
     Class<?> clazz = parameterType == null ? Object.class : parameterType;
+    //返回一个StaticSqlSource对象
     sqlSource = sqlSourceParser.parse(sql, clazz, new HashMap<>());
   }
 
