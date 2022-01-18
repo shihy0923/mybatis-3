@@ -35,6 +35,11 @@ import org.apache.ibatis.reflection.Reflector;
 
 /**
  * @author Clinton Begin
+ * DefaultObjectFactory 是 MyBatis 提供的 ObjectFactory 接口的唯一实现，它是一个反射工厂，
+ * 其 create()方法通过调用 instantiateClass()方法实现。 DefaultObjectFactory.instantiateClass()方法会
+ * 根据传入的参数列表选择合适的构造函数实例化对象.
+ * 除了使用 MyBatis 提供的 DefaultObjectFactory 实现，我们还可以在 mybatis-config.xml 配置
+ * 文件中指定自定义的 ObjectFactory 接口实现类，从而实现功能上的扩展
  */
 public class DefaultObjectFactory implements ObjectFactory, Serializable {
 
@@ -56,6 +61,7 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
   private  <T> T instantiateClass(Class<T> type, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
     try {
       Constructor<T> constructor;
+      //通过无参构造函数创建对象
       if (constructorArgTypes == null || constructorArgs == null) {
         constructor = type.getDeclaredConstructor();
         try {
@@ -69,6 +75,7 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
           }
         }
       }
+      //根据指定的参数列表查找构造函数，并实例化对象
       constructor = type.getDeclaredConstructor(constructorArgTypes.toArray(new Class[0]));
       try {
         return constructor.newInstance(constructorArgs.toArray(new Object[0]));
