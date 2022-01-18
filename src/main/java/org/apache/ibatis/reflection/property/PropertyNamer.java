@@ -21,6 +21,7 @@ import org.apache.ibatis.reflection.ReflectionException;
 
 /**
  * @author Clinton Begin
+ * PropertyNamer是另 一个工具类 ，提供了下列静态方法帮助完成方法名到属性名的转换，以及多种检测操作
  */
 public final class PropertyNamer {
 
@@ -28,6 +29,7 @@ public final class PropertyNamer {
     // Prevent Instantiation of Static Class
   }
 
+  //methodToProperty()方法会将方法名转换成属性名
   public static String methodToProperty(String name) {
     if (name.startsWith("is")) {
       name = name.substring(2);
@@ -44,14 +46,17 @@ public final class PropertyNamer {
     return name;
   }
 
+  //isProperty()方法负责检测方法名是否对应属性名
   public static boolean isProperty(String name) {
+    //是否以"get" “set” “is”开头
     return isGetter(name) || isSetter(name);
   }
-
+  //isGetter()方法负责检测方法是否为 getter 方法,或者是is方法
   public static boolean isGetter(String name) {
     return (name.startsWith("get") && name.length() > 3) || (name.startsWith("is") && name.length() > 2);
   }
 
+  //负责检测方法是否为setter方法
   public static boolean isSetter(String name) {
     return name.startsWith("set") && name.length() > 3;
   }
