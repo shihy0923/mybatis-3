@@ -25,7 +25,7 @@ import java.util.Iterator;
  * <result property =”orders[O].items [1].name” column = ”item2” />
  * </resultMap>
  *
- * 在上例 中 ，“ orders[O] . items[O] . name ”这种 由 “ ．”和“ ［］ ”组成的表达式是由 PropertyTokenizer
+ * 在上例 中 ，“ orders[O].items[O].name ”这种 由 “．”和“［］”组成的表达式是由 PropertyTokenizer
  * 进行解析的。
  */
 public class PropertyTokenizer implements Iterator<PropertyTokenizer> {
