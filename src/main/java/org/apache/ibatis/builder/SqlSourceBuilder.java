@@ -94,12 +94,15 @@ public class SqlSourceBuilder extends BaseBuilder {
       return parameterMappings;
     }
     //解析参数属性，并将解析得到的ParameterMapping对象添加到parameterMappings集合中
+    //例如：SQL语句是insert into tbl_department (id, name, tel) values (#{id}, #{name}, #{tel})
+    //這裡的content的值是#{id}中的“id”，#{name}中的“name”这些。。
     @Override
     public String handleToken(String content) {
       parameterMappings.add(buildParameterMapping(content));
+      //然后直接返回占位符“？”，用于替换掉#{id}, #{name}, #{tel}这些玩意儿
       return "?";
     }
-    //负责解析参数属性
+    //负责解析参数属性，最主要的作用就是生成ParameterMapping对象
     private ParameterMapping buildParameterMapping(String content) {
       //将我们在“#{}”中配置的内容，解析为Map，如#{name,jdbcType=VARCHAR}，解析为Map中的两个元素，key为“property” value为“name” 和key为“jdbcType”  value为“VARCHAR”
       Map<String, String> propertiesMap = parseParameterMapping(content);

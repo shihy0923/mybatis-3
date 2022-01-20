@@ -59,6 +59,7 @@ public class RoutingStatementHandler implements StatementHandler {
 
   }
 
+  //从连接中获取一个Statement，這裡用了装饰器模式，delegate一般是BaseStatementHandler
   @Override
   public Statement prepare(Connection connection, Integer transactionTimeout) throws SQLException {
     return delegate.prepare(connection, transactionTimeout);

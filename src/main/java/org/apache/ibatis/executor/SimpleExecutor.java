@@ -69,6 +69,7 @@ public class SimpleExecutor extends BaseExecutor {
       //然后调用StatementHandler.parameterize()方法处理占位符
       stmt = prepareStatement(handler, ms.getStatementLog());
       //调用StatementHandler.query()方法，执行SQL语句，并通过ResultSetHandler完成结果集的映射
+      //底层调用JDBC的PreparedStatement.execute()方法
       return handler.query(stmt, resultHandler);
     } finally {
       //关闭Statement对象
@@ -96,7 +97,7 @@ public class SimpleExecutor extends BaseExecutor {
     Connection connection = getConnection(statementLog);
     //创建Statement对象
     stmt = handler.prepare(connection, transaction.getTimeout());
-    //处理占位符
+    //处理“？”占位符,将实参放入到Statement对象里面，这个就直接可以拿来执行给数据库了
     handler.parameterize(stmt);
     return stmt;
   }

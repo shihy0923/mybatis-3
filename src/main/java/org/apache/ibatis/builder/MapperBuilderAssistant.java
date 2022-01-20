@@ -128,6 +128,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
       boolean readWrite,
       boolean blocking,
       Properties props) {
+    //创建Cache对象，这里使用了建造者模式， CacheBuilder是建造者的角色 ，而 Cache 是生成的产品
     Cache cache = new CacheBuilder(currentNamespace)
         .implementation(valueOrDefault(typeClass, PerpetualCache.class))
         .addDecorator(valueOrDefault(evictionClass, LruCache.class))
@@ -137,7 +138,9 @@ public class MapperBuilderAssistant extends BaseBuilder {
         .blocking(blocking)
         .properties(props)
         .build();
+    //将 Cache对象添加到Configuration.caches集合中保存，其中将Cache的id(id其实就是上面的currentNamespace)作为 key,Cache对象本身作为 value
     configuration.addCache(cache);
+    //记录当前命名空间使用的cache对象
     currentCache = cache;
     return cache;
   }

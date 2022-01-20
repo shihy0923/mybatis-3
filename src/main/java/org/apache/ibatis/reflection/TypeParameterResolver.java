@@ -27,6 +27,8 @@ import java.util.Arrays;
 
 /**
  * @author Iwao AVE!
+ * 它是一个工具类，提供了一系列静态
+ * 方法来解析指定类中的宇段、方法返回值或方法参数的类型。
  */
 public class TypeParameterResolver {
 
@@ -39,10 +41,14 @@ public class TypeParameterResolver {
    *          the src type
    * @return The field type as {@link Type}. If it has type parameters in the declaration,<br>
    *         they will be resolved to the actual runtime {@link Type}s.
+   * 解析字段类型
    */
   public static Type resolveFieldType(Field field, Type srcType) {
+    //获取字段的声明类型
     Type fieldType = field.getGenericType();
+    //获取 字段定义所在的类的 Class 对象
     Class<?> declaringClass = field.getDeclaringClass();
+    //调用resolveType()方法进行后续处理
     return resolveType(fieldType, srcType, declaringClass);
   }
 
@@ -55,6 +61,7 @@ public class TypeParameterResolver {
    *          the src type
    * @return The return type of the method as {@link Type}. If it has type parameters in the declaration,<br>
    *         they will be resolved to the actual runtime {@link Type}s.
+   *         解析方法返回值类型
    */
   public static Type resolveReturnType(Method method, Type srcType) {
     Type returnType = method.getGenericReturnType();
@@ -72,6 +79,7 @@ public class TypeParameterResolver {
    * @return The parameter types of the method as an array of {@link Type}s. If they have type parameters in the
    *         declaration,<br>
    *         they will be resolved to the actual runtime {@link Type}s.
+   * 方法参数列表中各个参数的类型
    */
   public static Type[] resolveParamTypes(Method method, Type srcType) {
     Type[] paramTypes = method.getGenericParameterTypes();
@@ -83,12 +91,15 @@ public class TypeParameterResolver {
     return result;
   }
 
+  //该方法会根据其第一个参数的类型， 即字段、方法返回值或方法参数的类型，选择合适的方法进行解析 。 resolveType（）方法的
+  //第二个参数表示查找该字段、返回值或方法参数 的 起始位置。
+  //第三个参数则 表示该字段 、 方法定义所在的类。
   private static Type resolveType(Type type, Type srcType, Class<?> declaringClass) {
-    if (type instanceof TypeVariable) {
+    if (type instanceof TypeVariable) {//解析 TypeVariable 类型
       return resolveTypeVar((TypeVariable<?>) type, srcType, declaringClass);
-    } else if (type instanceof ParameterizedType) {
+    } else if (type instanceof ParameterizedType) {//解析 ParameterizedType 类型
       return resolveParameterizedType((ParameterizedType) type, srcType, declaringClass);
-    } else if (type instanceof GenericArrayType) {
+    } else if (type instanceof GenericArrayType) {//解析 GenericArrayType 类型
       return resolveGenericArrayType((GenericArrayType) type, srcType, declaringClass);
     } else {
       return type;

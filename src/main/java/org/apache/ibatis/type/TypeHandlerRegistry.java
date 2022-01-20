@@ -54,11 +54,15 @@ import org.apache.ibatis.session.Configuration;
  */
 public final class TypeHandlerRegistry {
 
+  //记录JdbcType与TypeHandler之间的对应关系，其中JdbcType是一个枚举类型，它定义对应的JDBC类型
+  //该集合主要用于从结果集读取数据时，将数据从Jdbc类型转换成Java类型
   private final Map<JdbcType, TypeHandler<?>> jdbcTypeHandlerMap = new EnumMap<>(JdbcType.class);
+  // 记录了Java类型向指定JdbcType转换时，需要使用TypeHandler对象。例如：Java类型String可能转换成数据库的char 、 varchar 等多种类型，所以存在一对多关系
   private final Map<Type, Map<JdbcType, TypeHandler<?>>> typeHandlerMap = new ConcurrentHashMap<>();
   private final TypeHandler<Object> unknownTypeHandler;
+  //记录了全部TypeHandler的类型以及该类型相应的TypeHandler
   private final Map<Class<?>, TypeHandler<?>> allTypeHandlersMap = new HashMap<>();
-
+  //空TypeHandler集合的标识
   private static final Map<JdbcType, TypeHandler<?>> NULL_TYPE_HANDLER_MAP = Collections.emptyMap();
 
   private Class<? extends TypeHandler> defaultEnumTypeHandler = EnumTypeHandler.class;
@@ -229,20 +233,26 @@ public final class TypeHandlerRegistry {
     return getTypeHandler(javaTypeReference.getRawType(), jdbcType);
   }
 
+  //TypeHandlerRegistry.getTypeHandler（）方法的多个重载都会调用
+  //TypeHandlerRegistry.getTypeHandle(Type, JdbcType）这个重载方法 ， 它会根据指定的Java类型和
+  //JdbcType类型查找相应的TypeHandler 对象，具体实现如下：
   @SuppressWarnings("unchecked")
   private <T> TypeHandler<T> getTypeHandler(Type type, JdbcType jdbcType) {
     if (ParamMap.class.equals(type)) {
       return null;
     }
+    //查找（或初始化）Java类型对应的TypeHandler集合
     Map<JdbcType, TypeHandler<?>> jdbcHandlerMap = getJdbcHandlerMap(type);
     TypeHandler<?> handler = null;
     if (jdbcHandlerMap != null) {
+      //根据 JdbcType 类型查找 TypeHandler 对象
       handler = jdbcHandlerMap.get(jdbcType);
       if (handler == null) {
         handler = jdbcHandlerMap.get(null);
       }
       if (handler == null) {
         // #591
+        //如果jdbcHandlerMap 只注册了一个 TypeHandler ，则使用此 TypeHandler 对象
         handler = pickSoleHandler(jdbcHandlerMap);
       }
     }

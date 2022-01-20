@@ -19,26 +19,39 @@ import java.util.Iterator;
 
 /**
  * @author Clinton Begin
+ * <resultMap id = ” rrn4testProTool ” type = ” User ” >
+ * <id column = ”id” property = ”id” />
+ * <result property = ”orders[0].items[0].name” column = ”item1” />
+ * <result property =”orders[O].items [1].name” column = ”item2” />
+ * </resultMap>
+ *
+ * 在上例 中 ，“ orders[O].items[O].name ”这种 由 “．”和“［］”组成的表达式是由 PropertyTokenizer
+ * 进行解析的。
  */
 public class PropertyTokenizer implements Iterator<PropertyTokenizer> {
+  //当前表达式的名称,如：orders
   private String name;
+  //当前表达式的索引名,如：orders[O]
   private final String indexedName;
+  //索 引 下标,如：O
   private String index;
+  //子表达式,,如：items[0].name
   private final String children;
 
   public PropertyTokenizer(String fullname) {
+    //查找 ” · ” 的位置
     int delim = fullname.indexOf('.');
     if (delim > -1) {
-      name = fullname.substring(0, delim);
-      children = fullname.substring(delim + 1);
+      name = fullname.substring(0, delim);//初始化name
+      children = fullname.substring(delim + 1);//初始化children
     } else {
       name = fullname;
       children = null;
     }
-    indexedName = name;
+    indexedName = name;//初始化indexedName
     delim = name.indexOf('[');
     if (delim > -1) {
-      index = name.substring(delim + 1, name.length() - 1);
+      index = name.substring(delim + 1, name.length() - 1);//初始化index
       name = name.substring(0, delim);
     }
   }

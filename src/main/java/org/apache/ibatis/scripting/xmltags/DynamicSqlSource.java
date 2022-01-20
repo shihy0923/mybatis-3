@@ -40,9 +40,10 @@ public class DynamicSqlSource implements SqlSource {
     //创建DynamicContext对象，parameterObject是用户传入的实参
     DynamicContext context = new DynamicContext(configuration, parameterObject);
     //通过调用rootSqlNode.apply方法调用整个树形结构中全部的SqlNode.apply()方法，
-    //每个SqlNode的apply()方法都将解析得到的SQL语句片段追加到context中，最终通过context的getSql()方法得到完整的SQL语句。
+    //每个SqlNode的apply()方法都将解析得到的SQL语句片段追加到context中，最终通过context的getSql()方法得到完整的包含“#{}”占位符的SQL语句。例如下面，
     //对于<foreach>，会自定义出属性名，例如下面的__frch_id_0这些，并且对应的值也会被解析出来放到DynamicContext.bindings中，如在DynamicContext.bindings这个Map中，key是“__frch_id_0”，value是我们放入集合中的值
-//    select * from tbl_department
+    //最终完整的SQL与语句:
+//   select * from tbl_department
 //    where id in
 //      (
 //        #{__frch_id_0}
@@ -51,11 +52,14 @@ public class DynamicSqlSource implements SqlSource {
 //         )
 
     rootSqlNode.apply(context);
-    //创建SqlSourceBuilder解析参数属性，并将SQL语句中的“#{}”占位符替换成“?”占位符
+    //获得完整可以解析的SQL后，下面的步骤就和处理RawSqlSource基本上一样了
+
+    //创建SqlSourceBuilder解析参数属性
     SqlSourceBuilder sqlSourceParser = new SqlSourceBuilder(configuration);
     Class<?> parameterType = parameterObject == null ? Object.class : parameterObject.getClass();
+    //并将SQL语句中的“#{}”占位符替换成“?”占位符,把上面sql语句的参数解析成对应的最主要的作用就是生成ParameterMapping对象，然后返回一个StaticSqlSource对象
     SqlSource sqlSource = sqlSourceParser.parse(context.getSql(), parameterType, context.getBindings());
-    //创建BoundSql对象，
+    //创建BoundSql对象
     BoundSql boundSql = sqlSource.getBoundSql(parameterObject);
     //并将DynamicContext.bindings中的参数信息复制到additionalParameters属性中
     context.getBindings().forEach(boundSql::setAdditionalParameter);

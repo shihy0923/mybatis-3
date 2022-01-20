@@ -28,9 +28,12 @@ import org.apache.ibatis.reflection.property.PropertyTokenizer;
 
 /**
  * @author Clinton Begin
+ * BeanWrapper 继承了 BaseWrapper 抽象类，其中封装了 一个 JavaBean 对象以及该 JavaBean
+ * 类相应的MetaClass对象，当然，还有从 BaseWrapper 继承下来的、该JavaBean 对象相应的
+ * MetaObject对象 。
  */
 public class BeanWrapper extends BaseWrapper {
-
+  //原始 JavaBean 对象
   private final Object object;
   private final MetaClass metaClass;
 

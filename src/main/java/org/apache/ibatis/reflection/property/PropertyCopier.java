@@ -21,6 +21,8 @@ import org.apache.ibatis.reflection.Reflector;
 
 /**
  * @author Clinton Begin
+ * 一个属性拷贝的工具类 ，其核心方法是 copyBeanProperties()方法 ， 主要实
+ * 现相同类型的两个对象之间的属性值拷贝，
  */
 public final class PropertyCopier {
 
@@ -35,6 +37,7 @@ public final class PropertyCopier {
       for (Field field : fields) {
         try {
           try {
+            //将sourceBean对象中的属性值设直到destinationBean对象中
             field.set(destinationBean, field.get(sourceBean));
           } catch (IllegalAccessException e) {
             if (Reflector.canControlMemberAccessible()) {
@@ -48,6 +51,7 @@ public final class PropertyCopier {
           // Nothing useful to do, will only fail on final fields, which will be ignored.
         }
       }
+      //继续拷贝父类中定义的字段
       parent = parent.getSuperclass();
     }
   }

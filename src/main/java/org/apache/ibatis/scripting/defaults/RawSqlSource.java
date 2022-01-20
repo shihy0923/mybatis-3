@@ -32,10 +32,12 @@ import java.util.HashMap;
  * @since 3.2.0
  * @author Eduardo Macarron
  * RawSqlSource是SqlSource的另一个实现，其逻辑与DynamicSql
- * Source类似，但是执行时机不一样，处理的SQL语句类型也不一样。XMLScriptBuilder.parseDynamicTags()方法时提到过，如果节点只包含“#{}”占位符，而不包含动态SQL节点或未解析的“${}”占位符的话，则不是动态SQL语句，会创建相应的StaticTextSqlNode对象。在XMLScriptBuilder.parseScriptNode()方法中会判断整个SQL节点是否为动态的，如果不是动态的SQL节点，则创建相应的RawSqlSource对象。
+ * Source类似，但是执行时机不一样，处理的SQL语句类型也不一样。XMLScriptBuilder.parseDynamicTags()方法时提到过，如果节点只包含“#{}”占位符，而不包含动态SQL节点或未解析的“${}”占位符的话，
+ * 则不是动态SQL语句，会创建相应的StaticTextSqlNode对象。在XMLScriptBuilder.parseScriptNode()方法中会判断整个SQL节点是否为动态的，如果不是动态的SQL节点，则创建相应的RawSqlSource对象。
  */
 public class RawSqlSource implements SqlSource {
 
+  //是一个StaticSqlSource对象
   private final SqlSource sqlSource;
 
   //RawSqlSource在构造方法中首先会调用getSql()方法，其中通过调用SqlNode.apply()方法完成SQL语句的拼装和初步处理；之后会使用
@@ -47,6 +49,7 @@ public class RawSqlSource implements SqlSource {
   public RawSqlSource(Configuration configuration, String sql, Class<?> parameterType) {
     SqlSourceBuilder sqlSourceParser = new SqlSourceBuilder(configuration);
     Class<?> clazz = parameterType == null ? Object.class : parameterType;
+    //返回一个StaticSqlSource对象
     sqlSource = sqlSourceParser.parse(sql, clazz, new HashMap<>());
   }
 
