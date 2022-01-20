@@ -17,6 +17,10 @@ package org.apache.ibatis.logging;
 
 /**
  * @author Clinton Begin
+ * 第三 方日志组件都有各自的 Log 级别，且都有所不同，例如 java. uti l.logging
+ * 提供了 All 、 F卧而ST 、 FINER、 FINE 、 CONFIG 、卧.WO 、 W成NING 等 9 种级别，而 Log句2 则
+ * 只 有 trace 、 debug 、 info 、 warn 、 eηor 、 fatal 这 6 种日志级别。 MyBatis 统一提供了 trace 、 debug 、
+ * warn 、 eηor 四个级别，这基本与主流日志框架的日志级别类似，可以满足绝大多数场景的日志需求
  */
 public interface Log {
 

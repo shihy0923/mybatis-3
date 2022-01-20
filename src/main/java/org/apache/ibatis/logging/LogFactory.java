@@ -20,6 +20,9 @@ import java.lang.reflect.Constructor;
 /**
  * @author Clinton Begin
  * @author Eduardo Macarron
+ * Mybatis对于日志模块，使用了适配器模式，这里
+ * LogFactory工厂类负责创建对应的日志组件适配器.
+ * 适配器中的目标接口，就是org.apache.ibatis.logging.Log
  */
 public final class LogFactory {
 
@@ -28,9 +31,17 @@ public final class LogFactory {
    */
   public static final String MARKER = "MYBATIS";
 
+  //记录当前使用的第三方日志组件所对应的适配器的构造方法
   private static Constructor<? extends Log> logConstructor;
 
   static {
+    //下面会针对每种 日志组件调用 tryimplementation （ ）方法进行尝试加载，具体调用顺序是：
+    //11 useS lf 4jLogging
+    //（）一 ＞
+    //useCommonsLogging （）一＞
+    //useLog4J2Logging （）一〉
+    //II useLog 4JLogging()-- > useJdkLogging() -> useNoLogging()
+    //／／其中，调用 useJdkLogging （）方法的代码如下：
     tryImplementation(LogFactory::useSlf4jLogging);
     tryImplementation(LogFactory::useCommonsLogging);
     tryImplementation(LogFactory::useLog4J2Logging);
@@ -60,7 +71,7 @@ public final class LogFactory {
   }
 
   public static synchronized void useSlf4jLogging() {
-    setImplementation(org.apache.ibatis.logging.slf4j.Slf4jImpl.class);
+    setImplementation(org.apache.ibatis.logging.slf4j.Slf4jImpl.class);//这些东西是适配器模式中的具体的适配器
   }
 
   public static synchronized void useCommonsLogging() {

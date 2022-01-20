@@ -24,6 +24,7 @@ import org.slf4j.spi.LocationAwareLogger;
 /**
  * @author Clinton Begin
  * @author Eduardo Macarron
+ * 这就是Mybatis帮我们实现的具体的适配器
  */
 public class Slf4jImpl implements Log {
 

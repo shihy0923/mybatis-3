@@ -22,6 +22,7 @@ import org.apache.logging.log4j.spi.AbstractLogger;
 
 /**
  * @author Eduardo Macarron
+ * 这就是Mybatis帮我们实现的对于Log4j2来说的具体的适配器
  */
 public class Log4j2Impl implements Log {
 
