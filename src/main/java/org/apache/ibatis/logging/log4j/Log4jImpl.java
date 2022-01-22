@@ -22,12 +22,13 @@ import org.apache.log4j.Logger;
 /**
  * @author Eduardo Macarron
  * @deprecated Since 3.5.9 - See https://github.com/mybatis/mybatis-3/issues/1223. This class will remove future.
+ * Mybatis为了适配Log4j所实现的适配器
  */
 @Deprecated
 public class Log4jImpl implements Log {
 
   private static final String FQCN = Log4jImpl.class.getName();
-
+  //被适配的类，org.apache.log4j.Logger
   private final Logger log;
 
   public Log4jImpl(String clazz) {

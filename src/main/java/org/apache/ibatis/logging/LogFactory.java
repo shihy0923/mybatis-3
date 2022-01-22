@@ -35,16 +35,12 @@ public final class LogFactory {
   private static Constructor<? extends Log> logConstructor;
 
   static {
-    //下面会针对每种 日志组件调用 tryimplementation （ ）方法进行尝试加载，具体调用顺序是：
-    //11 useS lf 4jLogging
-    //（）一 ＞
-    //useCommonsLogging （）一＞
-    //useLog4J2Logging （）一〉
-    //II useLog 4JLogging()-- > useJdkLogging() -> useNoLogging()
-    //／／其中，调用 useJdkLogging （）方法的代码如下：
+    //下面会针对每种 日志组件调用 tryimplementation()方法进行尝试加载，具体调用顺序是：
+    //useSlf4jLogging()-->useCommonsLogging()-->useLog4J2Logging()-->useLog4JLogging()--> useJdkLogging()-->useNoLogging()
     tryImplementation(LogFactory::useSlf4jLogging);
     tryImplementation(LogFactory::useCommonsLogging);
     tryImplementation(LogFactory::useLog4J2Logging);
+    //我们以Log4jImpl为例子学习
     tryImplementation(LogFactory::useLog4JLogging);
     tryImplementation(LogFactory::useJdkLogging);
     tryImplementation(LogFactory::useNoLogging);
@@ -53,13 +49,14 @@ public final class LogFactory {
   private LogFactory() {
     // disable construction
   }
-
+  //提供给我们直接在代码里面直接调用的静态方法
   public static Log getLog(Class<?> clazz) {
     return getLog(clazz.getName());
   }
-
+  //看这里
   public static Log getLog(String logger) {
     try {
+      //直接利用反射，生成具体的适配器的对象
       return logConstructor.newInstance(logger);
     } catch (Throwable t) {
       throw new LogException("Error creating logger for logger " + logger + ".  Cause: " + t, t);
@@ -103,8 +100,12 @@ public final class LogFactory {
   }
 
   private static void tryImplementation(Runnable runnable) {
+    //如果已经找到了具体的适配器类，直接跳过。
     if (logConstructor == null) {
       try {
+        //这里调用就是静态方法中传入的方法引用
+        //其实就是调用下面的org.apache.ibatis.logging.LogFactory.setImplementation()方法，这个方法如果报了找不到指定的类型的错误，
+        //直接catch到异常，然后啥也不处理。
         runnable.run();
       } catch (Throwable t) {
         // ignore
@@ -112,15 +113,20 @@ public final class LogFactory {
     }
   }
 
+  //在这里面去找到底是用哪个适配器
   private static void setImplementation(Class<? extends Log> implClass) {
     try {
+      //获取指定适配器的构造方法，这里可能会报错，找不到指定的类，因为我们只是选择了某一种日志实现，所以其他的没有引用相关的jar包，所以会报找不到指定的类型的错误。
       Constructor<? extends Log> candidate = implClass.getConstructor(String.class);
+      //返回具体的适配器类，这里我们以org.apache.ibatis.logging.log4j2.Log4jImpl为例子
       Log log = candidate.newInstance(LogFactory.class.getName());
       if (log.isDebugEnabled()) {
+        //打印出来具体用了哪一个适配器类
         log.debug("Logging initialized using '" + implClass + "' adapter.");
       }
+      //给logConstructor赋值为具体的适配器的构造函数
       logConstructor = candidate;
-    } catch (Throwable t) {
+    } catch (Throwable t) {//catch到上面找不到指定的类的异常
       throw new LogException("Error setting Log implementation.  Cause: " + t, t);
     }
   }
