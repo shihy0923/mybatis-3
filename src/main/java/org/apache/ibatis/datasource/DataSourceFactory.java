@@ -20,6 +20,8 @@ import java.util.Properties;
 
 /**
  * @author Clinton Begin
+ * 在数据源模块中， DataSourceFactory 接口扮演工厂接口的角色 UnpooledDataSourceFactory
+ * PooledDataSourceFactory 扮演着具体工厂类的角色。
  */
 public interface DataSourceFactory {
 

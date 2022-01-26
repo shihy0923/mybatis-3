@@ -15,17 +15,17 @@
  */
 package org.apache.ibatis.datasource.unpooled;
 
-import java.util.Properties;
-
-import javax.sql.DataSource;
-
 import org.apache.ibatis.datasource.DataSourceException;
 import org.apache.ibatis.datasource.DataSourceFactory;
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.SystemMetaObject;
 
+import javax.sql.DataSource;
+import java.util.Properties;
+
 /**
  * @author Clinton Begin
+ * UnpooledDataSourceFactory扮演着具体工厂类的角色
  */
 public class UnpooledDataSourceFactory implements DataSourceFactory {
 
@@ -41,25 +41,31 @@ public class UnpooledDataSourceFactory implements DataSourceFactory {
   @Override
   public void setProperties(Properties properties) {
     Properties driverProperties = new Properties();
+    //创建 DataSource 相应的 MetaObject
     MetaObject metaDataSource = SystemMetaObject.forObject(dataSource);
+    //遍历 properties 集合，该集合中自己置了数据源需要的信息
     for (Object key : properties.keySet()) {
       String propertyName = (String) key;
       if (propertyName.startsWith(DRIVER_PROPERTY_PREFIX)) {
         String value = properties.getProperty(propertyName);
+        //以 "driver"开头的自己置项是对 DataSource 的配置，记录到 driverProperties 中保存
         driverProperties.setProperty(propertyName.substring(DRIVER_PROPERTY_PREFIX_LENGTH), value);
-      } else if (metaDataSource.hasSetter(propertyName)) {
+      } else if (metaDataSource.hasSetter(propertyName)) {//是否有该属性的 setter 方法
         String value = (String) properties.get(propertyName);
+        //根据属性类型进行类型转换， 主要是 Integer Long Boolean 三种类型的转换
         Object convertedValue = convertValue(metaDataSource, propertyName, value);
+        //设置 DataSource 的相关属性值
         metaDataSource.setValue(propertyName, convertedValue);
       } else {
         throw new DataSourceException("Unknown DataSource property: " + propertyName);
       }
     }
-    if (driverProperties.size() > 0) {
+    if (driverProperties.size() > 0) {//设置 DataSource.driverProperties 属性值
       metaDataSource.setValue("driverProperties", driverProperties);
     }
   }
 
+  //直接就返回这个UnpooledDataSource对象
   @Override
   public DataSource getDataSource() {
     return dataSource;
