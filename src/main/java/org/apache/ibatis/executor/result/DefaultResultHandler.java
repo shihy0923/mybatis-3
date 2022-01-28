@@ -15,15 +15,16 @@
  */
 package org.apache.ibatis.executor.result;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.ibatis.reflection.factory.ObjectFactory;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Clinton Begin
+ * DefaultResultHandler继承了 ResultHandler 接口，它底层使用 list 宇段暂存映射得到的结果对象
  */
 public class DefaultResultHandler implements ResultHandler<Object> {
 

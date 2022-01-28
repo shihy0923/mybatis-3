@@ -386,9 +386,9 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     skipRows(resultSet, rowBounds);
     //循环封装
     while (shouldProcessMoreRows(resultContext, rowBounds) && !resultSet.isClosed() && resultSet.next()) {
-      //根据改行记录以及ResultMap.discriminator，决定映射使用的ResultMap
+      //根据该行记录以及ResultMap.discriminator，决定映射使用的ResultMap
       ResultMap discriminatedResultMap = resolveDiscriminatedResultMap(resultSet, resultMap, null);
-      //根据最终确定的ResultMap和ResultSet中的改行记录进行映射，得到映射后的结果对象
+      //根据最终确定的ResultMap和ResultSet中的该行记录进行映射，得到映射后的结果对象
       Object rowValue = getRowValue(rsw, discriminatedResultMap, null);
       //将映射创建的结果对象添加到ResultHandler.resultList中保存
       storeObject(resultHandler, resultContext, rowValue, parentMapping, resultSet);
@@ -438,7 +438,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
   private Object getRowValue(ResultSetWrapper rsw, ResultMap resultMap, String columnPrefix) throws SQLException {
     //和延迟加载有关
     final ResultLoaderMap lazyLoader = new ResultLoaderMap();
-    //创建改行记录映射之后得到的结果对象，该结果对象的类型由<resultMap>节点的type属性指定
+    //创建该行记录映射之后得到的结果对象，该结果对象的类型由<resultMap>节点的type属性指定
     // 创建需要封装的结果集类型的空对象(相当于空的实体类/空Map)
     Object rowValue = createResultObject(rsw, resultMap, lazyLoader, columnPrefix);
     if (rowValue != null && !hasTypeHandlerForResultObject(rsw, resultMap.getType())) {
@@ -615,7 +615,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
 
   //该方法主要负责自动映射ResultMap中未明确映射的列
   private boolean applyAutomaticMappings(ResultSetWrapper rsw, ResultMap resultMap, MetaObject metaObject, String columnPrefix) throws SQLException {
-    //获取ResultSet中存在，但在ResultMap中没有明确映射的列所对应的UnMappedColumnAutoMapping集合，
+    //获取在数据库结果集ResultSet中存在，但在ResultMap中没有明确映射的列所对应的UnMappedColumnAutoMapping集合，
     //如果ResultMap中设置的resultType为java.util.HashMap的话，则全部的列都在这里获取到
     List<UnMappedColumnAutoMapping> autoMapping = createAutomaticMappings(rsw, resultMap, metaObject, columnPrefix);
     boolean foundValues = false;

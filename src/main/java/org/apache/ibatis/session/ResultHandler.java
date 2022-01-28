@@ -17,6 +17,8 @@ package org.apache.ibatis.session;
 
 /**
  * @author Clinton Begin
+ * DefaultResultHandler继承了 ResultHandler 接口，它底层使用 list 宇段暂存映射得到的结果对象。
+ * 另外，ResultHandler接口还有另一个名 DefaultMapResultHandler 的实现，它底层使用 Map<K, V> mappedResults  暂存结果对象。
  */
 public interface ResultHandler<T> {
 

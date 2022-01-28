@@ -15,8 +15,6 @@
  */
 package org.apache.ibatis.executor.result;
 
-import java.util.Map;
-
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.ReflectorFactory;
 import org.apache.ibatis.reflection.factory.ObjectFactory;
@@ -24,8 +22,11 @@ import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 
+import java.util.Map;
+
 /**
  * @author Clinton Begin
+ * ResultHandler接口的另一个名 DefaultMapResultHandler 的实现，它底层使用 Map<K, V> mappedResults  暂存结果对象。
  */
 public class DefaultMapResultHandler<K, V> implements ResultHandler<V> {
 
