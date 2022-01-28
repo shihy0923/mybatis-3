@@ -74,14 +74,17 @@ public class DefaultParameterHandler implements ParameterHandler {
         if (parameterMapping.getMode() != ParameterMode.OUT) {
           Object value;//记录绑定的参数
           String propertyName = parameterMapping.getProperty();//获取参数名称
-          //获取对应的实参值
+          //下面的几个if，是为了获取对应的实参值
+
+          //这个是查看additionalParameters中是否有propertyName对应值，这行代码一般针对入参是List或者Map，经过org.apache.ibatis.scripting.xmltags.ForEachSqlNode.apply方法处理，会自定义类似于__frch_id_0的key，然后把集合中的每个元素拿出来放到bindings中。然后，
+          //additionalParameters里面的值就是复制的bindings中值。详情查看org.apache.ibatis.scripting.xmltags.DynamicSqlSource.getBoundSql方法
           if (boundSql.hasAdditionalParameter(propertyName)) { // issue #448 ask first for additional params
             value = boundSql.getAdditionalParameter(propertyName);
-          } else if (parameterObject == null) {
+          } else if (parameterObject == null) {//参数是空
             value = null;
           } else if (typeHandlerRegistry.hasTypeHandler(parameterObject.getClass())) {//实参可以直接通过TypeHandler转换成JdbcType
             value = parameterObject;
-          } else {
+          } else {//入参就是个普通JavaBean对象
             //获取对象中相应的属性值或查找Map对象中的值
             MetaObject metaObject = configuration.newMetaObject(parameterObject);
             value = metaObject.getValue(propertyName);

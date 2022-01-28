@@ -63,7 +63,16 @@ public class ForEachSqlNode implements SqlNode {
     this.item = item;
     this.configuration = configuration;
   }
- //这个方法走完，最终解析出来的sql是 select * from tbl_department
+ //这个方法走完，原来的语句
+//  <select id="findAllDepartmentUseForeach" parameterType="list" resultType="Department">
+//  select * from tbl_department
+//  where id in
+//    <foreach collection="ids" item="id" open="(" close=")" separator=",">
+//    #{id}
+//    </foreach>
+//  </select>
+ //
+ // 最终解析出来的sql是 select * from tbl_department
  //        where id in
  //         (
  //            #{__frch_id_0}
@@ -71,12 +80,29 @@ public class ForEachSqlNode implements SqlNode {
  //            #{__frch_id_1}
  //         )
   //且context中的bindings，里面放了，key是"__frch_id_0" ，value是我们创建的集合的第一个值，key是“__frch_id_1”，value是我们创建的集合的第二个值。等等。。。。。。。。
+
+  //如果原来的语句是想遍历Map
+  //<select id='testMap' parameterType="map" resultType="Department">
+  //    select * from tbl_department where id in
+  //    <foreach collection="_parameter.entrySet()" index="index" open="(" separator="," close=")" item="item">
+  //      #{item.id}
+  //    </foreach>
+  //  </select>
+
+  //最终解析完的sql语句是
+  // select * from tbl_department where id in
+  //     (
+  //      #{__frch_item_0.id}
+  //     ,
+  //      #{__frch_item_1.id}
+  //     )
   @Override
   public boolean apply(DynamicContext context) {
     //获取用户实参，如list，这个实参是包装过的，是org.apache.ibatis.scripting.xmltags.DynamicContext.ContextMap类型的，key是“_parameter”，value是我们的List类型入参
     Map<String, Object> bindings = context.getBindings();
-    //collectionExpression表达式表示的是，我们@Param注解定义的，或者是默认的"collection","list"或者是"array"。这就代码表示的就是从bindings这个总的集合中，找到key表达式符合collectionExpression的value
-    //iterable其实就是我们用户实参本身，就是我们自己new 的那个List对象。
+    //collectionExpression表达式表示的是，我们@Param注解定义的，或者是我们在<foreach>标签里面的collection属性里面定义的值，比如上面两个示例语句中的“ids”和"_parameter.entrySet()"。
+    // 这句代码表示的就是从bindings这个总的集合中，找到key表达式符合collectionExpression的value
+    //iterable其实就是我们用户实参本身，就是我们自己new 的那个List或Map对象。
     final Iterable<?> iterable = evaluator.evaluateIterable(collectionExpression, bindings,
       Optional.ofNullable(nullable).orElseGet(configuration::isNullableOnForEach));
     if (iterable == null || !iterable.iterator().hasNext()) {
@@ -94,7 +120,13 @@ public class ForEachSqlNode implements SqlNode {
       }
       int uniqueNumber = context.getUniqueNumber();
       // Issue #709
-      if (o instanceof Map.Entry) {
+      if (o instanceof Map.Entry) {//这里是处理的是Map类型的，比如下面
+        //<select id='testMap' parameterType="map" resultType="Department">
+        //    select * from tbl_department where id in
+        //    <foreach collection="_parameter.entrySet()" index="index" open="(" separator="," close=")" item="item">
+        //      #{item.id}
+        //    </foreach>
+        //  </select>
         @SuppressWarnings("unchecked")
         Map.Entry<Object, Object> mapEntry = (Map.Entry<Object, Object>) o;
         applyIndex(context, mapEntry.getKey(), uniqueNumber);

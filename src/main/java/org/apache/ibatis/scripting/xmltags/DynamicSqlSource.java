@@ -42,6 +42,13 @@ public class DynamicSqlSource implements SqlSource {
     //通过调用rootSqlNode.apply方法调用整个树形结构中全部的SqlNode.apply()方法，
     //每个SqlNode的apply()方法都将解析得到的SQL语句片段追加到context中，最终通过context的getSql()方法得到完整的包含“#{}”占位符的SQL语句。例如下面，
     //对于<foreach>，会自定义出属性名，例如下面的__frch_id_0这些，并且对应的值也会被解析出来放到DynamicContext.bindings中，如在DynamicContext.bindings这个Map中，key是“__frch_id_0”，value是我们放入集合中的值
+    //  <select id="findAllDepartmentUseForeach" parameterType="list" resultType="Department">
+//  select * from tbl_department
+//  where id in
+//    <foreach collection="ids" item="id" open="(" close=")" separator=",">
+//    #{id}
+//    </foreach>
+//  </select>
     //最终完整的SQL与语句:
 //   select * from tbl_department
 //    where id in
