@@ -90,6 +90,7 @@ public class CachingExecutor implements Executor {
     //获取BoundSql对象
     BoundSql boundSql = ms.getBoundSql(parameterObject);
     //创建CacheKey对象
+    //一般是key值类似于，296516776:875365684:com.linkedbear.mybatis.mapper.DepartmentMapper.findAll:0:2147483647:select * from tbl_department:development
     CacheKey key = createCacheKey(ms, parameterObject, rowBounds, boundSql);
     return query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
   }
